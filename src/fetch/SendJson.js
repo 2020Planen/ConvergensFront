@@ -1,5 +1,3 @@
-const URL = "http://localhost:8080/receiver/address";
-
 function handleHttpErrors(res) {
   if (!res.ok) {
     return Promise.reject({ status: res.status, fullError: res.json() });
@@ -10,13 +8,13 @@ function handleHttpErrors(res) {
 class SendJson {
 
 
-    // opt = string (GET/POST) data = json Obj
-    SendJson = (opt, data) => {
+    // url = fuld url opt = string (GET/POST) data = json som string
+    SendJson = (url, opt, data) => {
     const options = this.makeOptions(opt, data);
-    return fetch(URL, options)
+    return fetch(url, options)
       .then(handleHttpErrors)
       .then(res => {
-        console.log(res)
+        return res;
       });
   };
 
