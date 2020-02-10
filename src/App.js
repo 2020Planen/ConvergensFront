@@ -1,7 +1,7 @@
 import React from 'react';
 // import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Navbar, Nav, NavDropdown, Jumbotron } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown, Jumbotron, Container } from 'react-bootstrap';
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import Home from "./components/Home"
 import Send from "./components/Send"
@@ -12,9 +12,11 @@ import ErrorReciever from "./components/reciever/ErrorReciever"
 
 function NoMatch() {
   return (
+    <Container>
     <Jumbotron>
       <h3>404 - siden kan ikke findes</h3>
     </Jumbotron>
+    </Container>
   );
 }
 
@@ -54,7 +56,6 @@ function App() {
   return (
     <>
       <Router>
-        <div>
           <Header />
           <Switch>
             <Route exact path="/home" render={() => <Home />} />
@@ -64,10 +65,8 @@ function App() {
             <Route exact path="/condition" render={() => <Condition />} />
             <Route exact path="/createRoutingSlip" render={() => <CreateRoutingSlip />} />
             <Route exact path="/errorReciever" render={() => <ErrorReciever />} />
-
             <Route component={NoMatch} />
           </Switch>
-        </div>
       </Router>
     </>
   );
