@@ -15,6 +15,7 @@ import Reciever from "./components/reciever/Reciever";
 import Condition from "./components/conditions/Condition";
 import CreateRoutingSlip from "./components/createRoutingSlip/CreateRoutingSlip";
 import ErrorReciever from "./components/reciever/ErrorReciever";
+import About from "./components/About";
 
 /*
 import Logo from "./pictures/Logo.png"
@@ -26,6 +27,7 @@ import Logo from "./pictures/Logo.png"
           alt="logo"
         />
         */
+
 function NoMatch() {
   return (
     <Container>
@@ -38,38 +40,46 @@ function NoMatch() {
 
 function Header() {
   return (
-    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" sticky="top">
-      <Navbar.Brand href="#home">Convergens</Navbar.Brand>
-      <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-      <Navbar.Collapse id="responsive-navbar-nav">
-        <Nav className="mr-auto">
-          <Nav.Link href="#send">Send Besked</Nav.Link>
-          <NavDropdown title="Routing Slips" id="collasible-nav-dropdown">
-            <NavDropdown.Item href="#createRoutingSlip">
-              Opret routing slip
-            </NavDropdown.Item>
-            <NavDropdown.Divider />
-            <NavDropdown.Item href="#condition">
-              Ændring af routing slips
-            </NavDropdown.Item>
-          </NavDropdown>
-          <NavDropdown title="Modtag beskeder" id="collasible-nav-dropdown">
-            <NavDropdown.Item href="#reciever">
-              Modtag Beskeder
-            </NavDropdown.Item>
-            <NavDropdown.Divider />
-            <NavDropdown.Item href="#errorReciever">
-              Modtag Fejlbeskeder
-            </NavDropdown.Item>
-          </NavDropdown>
-        </Nav>
-        <Nav>
-          <Nav.Link eventKey={2} href="#about">
-            About
-          </Nav.Link>
-        </Nav>
-      </Navbar.Collapse>
-    </Navbar>
+    <>
+      <Navbar
+        collapseOnSelect
+        expand="lg"
+        bg="dark"
+        variant="dark"
+        sticky="top"
+      >
+        <Navbar.Brand href="#home">Convergens</Navbar.Brand>
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Collapse id="responsive-navbar-nav">
+          <Nav className="mr-auto">
+            <Nav.Link href="#send">Send Besked</Nav.Link>
+            <NavDropdown title="Routing Slips" id="collasible-nav-dropdown">
+              <NavDropdown.Item href="#createRoutingSlip">
+                Opret routing slip
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#condition">
+                Ændring af routing slips
+              </NavDropdown.Item>
+            </NavDropdown>
+            <NavDropdown title="Modtag beskeder" id="collasible-nav-dropdown">
+              <NavDropdown.Item href="#reciever">
+                Modtag Beskeder
+              </NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#errorReciever">
+                Modtag Fejlbeskeder
+              </NavDropdown.Item>
+            </NavDropdown>
+          </Nav>
+          <Nav>
+            <Nav.Link eventKey={2} href="#about">
+              About
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+    </>
   );
 }
 
@@ -79,8 +89,8 @@ function App() {
       <Router>
         <Header />
         <Switch>
-          <Route exact path="/home" render={() => <Home />} />
           <Route exact path="/" render={() => <Home />} />
+          <Route exact path="/home" render={() => <Home />} />
           <Route exact path="/send" render={() => <Send />} />
           <Route exact path="/reciever" render={() => <Reciever />} />
           <Route exact path="/condition" render={() => <Condition />} />
@@ -90,6 +100,7 @@ function App() {
             render={() => <CreateRoutingSlip />}
           />
           <Route exact path="/errorReciever" render={() => <ErrorReciever />} />
+          <Route exact path="/about" render={() => <About />} />
           <Route component={NoMatch} />
         </Switch>
       </Router>
