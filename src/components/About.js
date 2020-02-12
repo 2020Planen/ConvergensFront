@@ -1,171 +1,158 @@
 import React, { Component } from "react";
-import {
-  Container,
-  //Row,
-  //Col,
-  Jumbotron,
-  //Accordion,
-  //Card,
-  //Button
-} from "react-bootstrap";
-import {
-  Query,
-  Builder,
-  BasicConfig,
-  Utils as QbUtils
-} from "react-awesome-query-builder";
-import "antd/dist/antd.css";
-import "react-awesome-query-builder/css/styles.scss";
-//import "react-awesome-query-builder/css/compact_styles.scss"; //optional, for more compact styles
+import { /*Container,*/ Row, Col, Jumbotron, Button, InputGroup, Form } from "react-bootstrap";
 
-// You need to provide your own config. See below 'Config format'
-const config = {
-  ...BasicConfig,
-  fields: {
-    qty: {
-      label: "Qty",
-      type: "number",
-      fieldSettings: {
-        min: 0
-      },
-      valueSources: ["value"],
-      preferWidgets: ["number"]
-    },
-    price: {
-      label: "Price",
-      type: "number",
-      valueSources: ["value"],
-      fieldSettings: {
-        min: 10,
-        max: 100
-      },
-      preferWidgets: ["slider", "rangeslider"]
-    },
-    color: {
-      label: "Color",
-      type: "select",
-      valueSources: ["value"],
-      listValues: [
-        { value: "yellow", title: "Yellow" },
-        { value: "green", title: "Green" },
-        { value: "orange", title: "Orange" }
+import SortableTree from "react-sortable-tree";
+import "react-sortable-tree/style.css"; // This only needs to be imported once in your app
+
+class Tree extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      inputNode: "",
+      treeData: [
+        {
+          title: 'Hvis "data" indeholder "firmaNavn" -> Send til cvr-beriger',
+          children: [
+            {
+              title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+              children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' ,
+              children: [
+                {
+                  title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+                  children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' ,
+                  children: [
+                    {
+                      title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+                      children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' ,
+                      children: [
+                        {
+                          title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+                          children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' ,
+                          children: [
+                            {
+                              title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+                              children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' ,
+                              children: [
+                                {
+                                  title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+                                  children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' ,
+                                  children: [
+                                    {
+                                      title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+                                      children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' ,
+                                      children: [
+                                        {
+                                          title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+                                          children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' ,
+                                          children: [
+                                            {
+                                              title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+                                              children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' ,
+                                              children: [
+                                                {
+                                                  title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+                                                  children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' }]
+                                                }
+                                              ]}]
+                                            }
+                                          ]}]
+                                        }
+                                      ]}]
+                                    }
+                                  ]}]
+                                }
+                              ]}]
+                            }
+                          ]}]
+                        }
+                      ]}]
+                    }
+                  ]}]
+                }
+              ]}]
+            }
+          ]
+        },
+        {
+          title: 'Hvis "data.cvr" -> send til "anden-beriger"',
+          children: [{ title: 'Hvis "data.cpr" -> send til "cpr-beriger"' }]
+        }
       ]
-    },
-    is_promotion: {
-      label: "Promo?",
-      type: "boolean",
-      operators: ["equal"],
-      valueSources: ["value"]
-    }
+    };
   }
-};
-
-// You can load query value from your backend storage (for saving see `Query.onChange()`)
-const queryValue = { id: QbUtils.uuid(), type: "group" };
-
-class DemoQueryBuilder extends Component {
-  state = {
-    tree: QbUtils.checkTree(QbUtils.loadTree(queryValue), config),
-    config: config
+  onChange = evt => {
+    this.setState({ [evt.target.id]: evt.target.value });
   };
 
-  render = () => (
-    <Container>
-      <Jumbotron>
-        <div>
-          <Query
-            {...config}
-            value={this.state.tree}
+  createNode = () => {
+    return (
+      <> 
+      <br />
+      <br />
+      <Form.Group>
+        <Form.Label>Opret et nyt node til træet her</Form.Label>
+        <InputGroup>
+          <Form.Control
+            id="inputNode"
+            required
+            defaultValue="JSON"
             onChange={this.onChange}
-            renderBuilder={this.renderBuilder}
           />
-          {//this.renderResult(this.state)
-          }
-        </div>
-      </Jumbotron>
-    </Container>
-  );
-
-  renderBuilder = props => (
-    <div className="query-builder-container" style={{ padding: "10px" }}>
-      <div className="query-builder qb-lite">
-        <Builder {...props} />
-      </div>
-    </div>
-  );
-
-  renderResult = ({ tree: immutableTree, config }) => (
-    <div className="query-builder-result">
-      <div>
-        Query string:{" "}
-        <pre>{JSON.stringify(QbUtils.queryString(immutableTree, config))}</pre>
-      </div>
-      <div>
-        MongoDb query:{" "}
-        <pre>
-          {JSON.stringify(QbUtils.mongodbFormat(immutableTree, config))}
-        </pre>
-      </div>
-      <div>
-        SQL where:{" "}
-        <pre>{JSON.stringify(QbUtils.sqlFormat(immutableTree, config))}</pre>
-      </div>
-      <div>
-        JsonLogic:{" "}
-        <pre>
-          {JSON.stringify(QbUtils.jsonLogicFormat(immutableTree, config))}
-        </pre>
-      </div>
-    </div>
-  );
-
-  onChange = (immutableTree, config) => {
-    // Tip: for better performance you can apply `throttle` - see `examples/demo`
-    this.setState({ tree: immutableTree, config: config });
-
-    const jsonTree = QbUtils.getTree(immutableTree);
-    console.log(jsonTree);
-    // `jsonTree` can be saved to backend, and later loaded to `queryValue`
+          <InputGroup.Append>
+            <Button variant="outline-secondary" onClick={this.getJson}>
+              Opret
+            </Button>
+          </InputGroup.Append>
+        </InputGroup>
+      </Form.Group>
+      </>
+    )
   };
+
+  seeState = () => {
+    console.log(this.state);
+    return(
+      <p>{JSON.stringify(this.state)}</p>
+    )
+  };
+
+  render() {
+    return (
+      <>
+      <Jumbotron>
+        <h3>Test af regel mulighed:</h3>
+      </Jumbotron>
+        <Jumbotron>
+        <h5>Sortable Tree:</h5>
+        <this.createNode />
+          <div style={{ height: 1200 }}>
+            <SortableTree
+              treeData={this.state.treeData}
+              onChange={treeData => this.setState({ treeData })}
+              
+            />
+          </div>
+        </Jumbotron>
+        <Jumbotron>
+          <this.seeState />
+        </Jumbotron>
+      </>
+    );
+  }
 }
 
-/*
-function About() {
+function Demo() {
   return (
-    <Container>
+
       <Row>
         <Col>
-          <Jumbotron></Jumbotron>
-          <Jumbotron>
-            <h5> TEST </h5>
-            <Accordion>
-              <Card>
-                <Card.Header>
-                  <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                    Click me!
-                  </Accordion.Toggle>
-                </Card.Header>
-                <Accordion.Collapse eventKey="0">
-                  <Card.Body>Hello! I'm the body</Card.Body>
-                </Accordion.Collapse>
-              </Card>
-              <Card>
-                <Card.Header>
-                  <Accordion.Toggle as={Button} variant="link" eventKey="1">
-                    Click me!
-                  </Accordion.Toggle>
-                </Card.Header>
-                <Accordion.Collapse eventKey="1">
-                  <Card.Body>Hello! I'm another body</Card.Body>
-                </Accordion.Collapse>
-              </Card>
-            </Accordion>
-          </Jumbotron>
+          <Tree />
         </Col>
       </Row>
-    </Container>
+
   );
 }
-*/
+export default Demo;
 
-export default DemoQueryBuilder;
+

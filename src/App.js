@@ -16,6 +16,9 @@ import Condition from "./components/conditions/Condition";
 import CreateRoutingSlip from "./components/createRoutingSlip/CreateRoutingSlip";
 import ErrorReciever from "./components/reciever/ErrorReciever";
 import About from "./components/About";
+import Test from "./components/Test";
+
+//import AddRemove from "./components/AddRemove";
 
 /*
 import Logo from "./pictures/Logo.png"
@@ -73,6 +76,9 @@ function Header() {
             </NavDropdown>
           </Nav>
           <Nav>
+            <Nav.Link eventKey={2} href="#test">
+              Test
+            </Nav.Link>
             <Nav.Link eventKey={2} href="#about">
               About
             </Nav.Link>
@@ -94,11 +100,9 @@ function App() {
           <Route exact path="/send" render={() => <Send />} />
           <Route exact path="/reciever" render={() => <Reciever />} />
           <Route exact path="/condition" render={() => <Condition />} />
-          <Route
-            exact
-            path="/createRoutingSlip"
-            render={() => <CreateRoutingSlip />}
-          />
+          <Route exact path="/test" render={() => <Test />} />
+          
+          <Route exact path="/createRoutingSlip" render={() => <CreateRoutingSlip />} />
           <Route exact path="/errorReciever" render={() => <ErrorReciever />} />
           <Route exact path="/about" render={() => <About />} />
           <Route component={NoMatch} />

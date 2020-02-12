@@ -8,7 +8,8 @@ import {
   Tab,
   InputGroup,
   Form,
-  Button
+  Button,
+  Badge
 } from "react-bootstrap";
 import SendJson from "../../fetch/SendJson";
 
@@ -80,8 +81,8 @@ class Main extends Component {
   CreateTab({ obj }) {
     return (
       <Jumbotron>
-        <h5>Besked id: {obj.id}</h5>
-        <Tabs defaultActiveKey="data" id="uncontrolled-tab">
+        <h5><Badge variant="secondary"> Besked id:</Badge> {obj.id}</h5>
+        <Tabs defaultActiveKey="" id="uncontrolled-tab">
           {Object.keys(obj.value).map(key => (
             <Tab key={key + obj} eventKey={key} title={key}>
               <div>
