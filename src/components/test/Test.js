@@ -1,9 +1,7 @@
 import React, { Component } from "react";
 import SortableTree, { toggleExpandedForAll } from "react-sortable-tree";
 //import FileExplorerTheme from '../index';
-//import './app.css';
 import * as TreeUtils from "./tree-data-utils";
-
 
 class Test extends Component {
   constructor(props) {
@@ -80,6 +78,8 @@ class Test extends Component {
     this.expand(false);
   }
 
+  
+
   render() {
     const {
       treeData,
@@ -123,9 +123,20 @@ class Test extends Component {
 
     return (
       <div
-        style={{ display: "flex", flexDirection: "column", height: "100vh" , backgroundColor: "#e0e0e0" }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          backgroundColor: "#e0e0e0"
+        }}
       >
-        <div style={{ flex: "0 0 auto", padding: "0 15px", backgroundColor: "white" }}>
+        <div
+          style={{
+            flex: "0 0 auto",
+            padding: "0 15px",
+            backgroundColor: "white"
+          }}
+        >
           <h3>Routing Slip test</h3>
           <button onClick={this.expandAll}>Expand All</button>
           <button onClick={this.collapseAll}>Collapse All</button>

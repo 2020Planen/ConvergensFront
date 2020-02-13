@@ -16,7 +16,7 @@ import Condition from "./components/conditions/Condition";
 import CreateRoutingSlip from "./components/createRoutingSlip/CreateRoutingSlip";
 import ErrorReciever from "./components/reciever/ErrorReciever";
 import About from "./components/About";
-import Test from "./components/Test";
+import Test from "./components/test/Test";
 
 //import AddRemove from "./components/AddRemove";
 
