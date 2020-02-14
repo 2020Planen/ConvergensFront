@@ -9,23 +9,25 @@ import {
   Modal,
   Col
 } from "react-bootstrap";
+import SendJson from "../../fetch/SendJson";
 
 import * as TreeUtils from "./tree-data-utils";
 import "react-sortable-tree/style.css";
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
+const url = "http://cis-x.convergens.dk:5984/routingslips/"
+var count = 0;
 
+//
 function isExpanded(index) {
   if (index === "expanded") return true;
-
   if (index === "isDirectory") return true;
-
   if (index === "title") return true;
 
   return false;
 }
 
-var count = 0;
+
 
 function editConditionSlip(input) {
   if (Array.isArray(input)) {
@@ -55,6 +57,7 @@ function editConditionSlip(input) {
   }
   return input;
 }
+//
 
 class Test extends Component {
   constructor(props) {
@@ -75,6 +78,7 @@ class Test extends Component {
       searchString: "",
       searchFocusIndex: 0,
       searchFoundCount: null,
+      producerReference: "",
       treeData: [
         {
           title: "data.cvr lig med convergens",
@@ -172,6 +176,27 @@ class Test extends Component {
     this.mapTree = TreeUtils.map.bind(this);
   }
 
+  createRoutingSlipJson = (producerReference, conditionsList) => {
+    var jsonObj = `{"producerReference": "${producerReference}", conditionsList${conditionsList}}`
+    return jsonObj
+}
+
+  generateRoutingSlip = async () => {
+    count = 0;
+    var oldJson = {};
+    oldJson = JSON.parse(JSON.stringify(this.state.treeData)); //dårlig clone løsning
+    var newJson = editConditionSlip(oldJson);
+
+    const routingSlipString = `{"producerReference": "${this.state.producerReference}", "conditionsList": ${JSON.stringify(newJson)}}`
+
+    const uuidv4 = require('uuid/v4');
+    const dbUrl = url + uuidv4()
+
+    let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString)
+    alert(response)
+    // alert(JSON.stringify(newJson));
+  };
+
   updateTreeData(treeData) {
     this.setState({ treeData });
   }
@@ -192,15 +217,6 @@ class Test extends Component {
   collapseAll() {
     this.expand(false);
   }
-
-  showTree = () => {
-    count = 0;
-    var oldJson = {};
-    oldJson = JSON.parse(JSON.stringify(this.state.treeData)); //dårlig clone løsning
-
-    var newJson = editConditionSlip(oldJson);
-    alert(JSON.stringify(newJson));
-  };
 
   onNodeChange = evt => {
     this.setState({
@@ -359,7 +375,7 @@ class Test extends Component {
     return (
       <>
         <Navbar>
-          <Navbar.Brand href="#home">Ændring af Routing slip</Navbar.Brand>
+          <Navbar.Brand>Opret Routing Slip</Navbar.Brand>
           <Nav className="mr-auto">
             <Button variant="outline-secondary" onClick={this.expandAll}>
               Udvid Regler
@@ -399,8 +415,19 @@ class Test extends Component {
             </span>
           </Nav>
           <Form inline>
-            <Button variant="outline-secondary" onClick={this.showTree}>
-              Vis RoutingSlip
+            <Form.Control
+              id="producerReference"
+              required
+              placeholder="producer reference navn"
+              onChange={event => {
+                this.setState({ producerReference: event.target.value });
+              }}
+            />
+            <Button
+              variant="outline-secondary"
+              onClick={this.generateRoutingSlip}
+            >
+              Tilføj Routing Slip
             </Button>
           </Form>
 
