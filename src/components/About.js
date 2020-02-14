@@ -1,13 +1,6 @@
-import React, { Component } from "react";
-import {
-  /*Container,*/ Row,
-  Col,
-  Jumbotron,
-  Button,
-  InputGroup,
-  Form
-} from "react-bootstrap";
-
+import React from "react";
+import { Row, Col, Jumbotron } from "react-bootstrap";
+/*
 import SortableTree from "react-sortable-tree";
 import "react-sortable-tree/style.css"; // This only needs to be imported once in your app
 
@@ -118,7 +111,9 @@ class Tree extends Component {
       </>
     );
   };
-  /*
+  */
+
+/*
   seeState = () => {
     var oldJson = {};
     oldJson.data = this.state.treeData;
@@ -130,6 +125,8 @@ class Tree extends Component {
     return <p>{JSON.stringify(newJson)}</p>;
   };
 */
+
+/*
   render() {
     return (
       <>
@@ -152,11 +149,12 @@ class Tree extends Component {
   }
 }
 
+*/
 function Demo() {
   return (
     <Row>
       <Col>
-        <Tree />
+        <Jumbotron></Jumbotron>
       </Col>
     </Row>
   );

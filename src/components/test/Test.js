@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 
 import * as TreeUtils from "./tree-data-utils";
+import "react-sortable-tree/style.css";
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
 
