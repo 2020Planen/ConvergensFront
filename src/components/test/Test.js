@@ -15,7 +15,7 @@ import * as TreeUtils from "./tree-data-utils";
 import "react-sortable-tree/style.css";
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
-const url = "http://cis-x.convergens.dk:5984/routingslips/"
+const url = "http://cis-x.convergens.dk:5984/routingslips/";
 var count = 0;
 
 //
@@ -26,8 +26,6 @@ function isExpanded(index) {
 
   return false;
 }
-
-
 
 function editConditionSlip(input) {
   if (Array.isArray(input)) {
@@ -177,9 +175,9 @@ class Test extends Component {
   }
 
   createRoutingSlipJson = (producerReference, conditionsList) => {
-    var jsonObj = `{"producerReference": "${producerReference}", conditionsList${conditionsList}}`
-    return jsonObj
-}
+    var jsonObj = `{"producerReference": "${producerReference}", conditionsList${conditionsList}}`;
+    return jsonObj;
+  };
 
   generateRoutingSlip = async () => {
     count = 0;
@@ -187,13 +185,15 @@ class Test extends Component {
     oldJson = JSON.parse(JSON.stringify(this.state.treeData)); //dårlig clone løsning
     var newJson = editConditionSlip(oldJson);
 
-    const routingSlipString = `{"producerReference": "${this.state.producerReference}", "conditionsList": ${JSON.stringify(newJson)}}`
+    const routingSlipString = `{"producerReference": "${
+      this.state.producerReference
+    }", "conditionsList": ${JSON.stringify(newJson)}}`;
 
-    const uuidv4 = require('uuid/v4');
-    const dbUrl = url + uuidv4()
+    const uuidv4 = require("uuid/v4");
+    const dbUrl = url + uuidv4();
 
-    let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString)
-    alert(response)
+    let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString);
+    alert(response);
     // alert(JSON.stringify(newJson));
   };
 
@@ -449,6 +449,7 @@ class Test extends Component {
               searchQuery={searchString}
               searchFocusOffset={searchFocusIndex}
               //onlyExpandSearchedNodes="true"
+              rowHeight={rowInfo => (rowInfo.node.topic === "??" ? 65 : 65)}
               searchFinishCallback={matches =>
                 this.setState({
                   searchFoundCount: matches.length,
@@ -494,11 +495,14 @@ class Test extends Component {
                     ],
 
                 buttons: [
-                  <h6 style={{}}>
-                    &nbsp;
-                    {rowInfo.node.topic}
-                    &nbsp;
-                  </h6>,
+                  <div>
+                    {" "}
+                    <h6 style={{}}>
+                      &nbsp;
+                      {rowInfo.node.topic}
+                      &nbsp;
+                    </h6>
+                  </div>,
                   <button
                     style={{
                       padding: 0,
