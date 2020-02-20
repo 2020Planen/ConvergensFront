@@ -1,33 +1,20 @@
-.modal {
-  font-size: 12px;
-}
-.modal > .header {
-  width: 100%;
-  border-bottom: 1px solid gray;
-  font-size: 18px;
-  text-align: center;
-  padding: 5px;
-}
-.modal > .content {
-  width: 100%;
-  padding: 10px 5px;
-}
-.modal > .actions {
-  width: 100%;
-  padding: 10px 5px;
+.popup {
+  z-index: 1;
+  position: fixed;
+  width: 22%;
+  left: 75%;
   margin: auto;
-  text-align: center;
-}
-.modal > .close {
-  cursor: pointer;
-  position: absolute;
-  display: block;
-  padding: 2px 5px;
-  line-height: 20px;
-  right: -10px;
-  top: -10px;
-  font-size: 24px;
-  background: #ffffff;
-  border-radius: 18px;
-  border: 1px solid #cfcece;
+
+  margin-top: 10px;
+  margin-left: 10px;
+
+  border: solid #bbb 1px;
+  box-shadow: 0 2px 2px -2px;
+  padding: 0 5px 0 10px;
+  border-radius: 2px;
+  min-width: 230px;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
 }

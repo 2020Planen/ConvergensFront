@@ -1,5 +1,10 @@
 import React, { Component } from "react";
+
 import SortableTree, { toggleExpandedForAll } from "react-sortable-tree";
+import * as TreeUtils from "./tree-data-utils";
+import "react-sortable-tree/style.css";
+import "./test.css";
+
 import {
   Navbar,
   Nav,
@@ -7,22 +12,38 @@ import {
   Button,
   FormControl,
   Modal,
-  Col
+  Col,
+  InputGroup
 } from "react-bootstrap";
-import SendJson from "../../fetch/SendJson";
-
-import * as TreeUtils from "./tree-data-utils";
-import "react-sortable-tree/style.css";
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
-const url = "http://cis-x.convergens.dk:5984/routingslips/";
 var count = 0;
+//const url = "http://cis-x.convergens.dk:5984/routingslips/";
 
-//
-function isExpanded(index) {
+/* 
+function optionsTranslator(value) {
+  switch (value) {
+    case "lig med":
+      value = "equals";
+      break;
+    case "større end":
+      value = "greater than";
+      break;
+    case "mindre end":
+      value = "less than";
+      break;
+    default:
+      value = "";
+  }
+  return value;
+}
+*/
+
+function toDelete(index) {
   if (index === "expanded") return true;
   if (index === "isDirectory") return true;
   if (index === "title") return true;
+  if (index === "parentKey") return true;
 
   return false;
 }
@@ -33,7 +54,7 @@ function editConditionSlip(input) {
       if (typeof input[index] == "object") {
         editConditionSlip(input[index]);
       }
-      if (isExpanded(index)) {
+      if (toDelete(index)) {
         input.splice(index, 1);
       }
     }
@@ -42,122 +63,113 @@ function editConditionSlip(input) {
       if (typeof input[jndex] == "object") {
         editConditionSlip(input[jndex]);
       }
-      if (isExpanded(jndex)) {
+      if (toDelete(jndex)) {
         delete input[jndex];
       }
-      if (jndex === "children") {
+      if (jndex === "conditions") {
         input.priority = count;
         count++;
-        input.conditions = input[jndex];
+      }
+      if (jndex === "children") {
+        input.routes = input[jndex];
         delete input[jndex];
       }
     }
   }
   return input;
 }
-//
+
+class Popup extends React.Component {
+  render() {
+    //console.log(this.props);
+    if (this.props.node.title !== undefined) {
+      return (
+        <div className="popup">
+          <h5>Regler for {this.props.node.title}: </h5>
+          {this.props.node.conditions.map((condition, index) => {
+            return (
+              <p key={condition + index}>
+                {" "}
+                Regel {index + 1}: {condition.field} - {condition.field} -{" "}
+                {condition.value}{" "}
+              </p>
+            );
+          })}
+          <Button
+            size="sm"
+            variant="outline-secondary"
+            onClick={this.props.closePopup}
+          >
+            -
+          </Button>
+        </div>
+      );
+    } else {
+      return <> </>;
+    }
+  }
+}
 
 class Test extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      showPopup: false,
+
+      nodeInfo: {},
+
+      producerReference: "",
+
+      setShow: false,
+      newNodeconditions: [{ field: "", action: "", value: "" }],
       newNode: {
         title: "",
-        field: "",
-        action: "",
-        value: "",
         topic: "",
+        children: [],
         parentKey: 0,
         isDirectory: true
       },
 
-      setShow: false,
+      setShowRemove: false,
+      nodeToDeleteParentKey: null,
+
       searchString: "",
       searchFocusIndex: 0,
       searchFoundCount: null,
-      producerReference: "",
+
       treeData: [
         {
-          title: "data.cvr lig med convergens",
-          field: "data.cvr",
-          action: "lig med",
-          value: "convergens",
+          title: "cvr-beriger",
+          subtitle: "data.cvr - lig med - convergens",
+          conditions: [
+            { field: "data.cvr", action: "lig med", value: "convergens" }
+          ],
           topic: "cvr-beriger",
           isDirectory: true,
           children: [
             {
-              title: "data.address.zip lig med 4400",
-              field: "data.address.zip",
-              action: "lig med",
-              value: "4400",
+              title: "kommune-beriger",
+              subtitle: "data.address.zip - lig med - 4400",
+              conditions: [
+                { field: "data.address.zip", action: "lig med", value: "4400" }
+              ],
               topic: "kommune-beriger",
               isDirectory: true,
               children: [
                 {
-                  title: "data.filstørrelse større end 2000",
-                  field: "data.filstørrelse",
-                  action: "større end",
-                  value: "2000",
-                  topic: "??",
+                  title: "test-beriger",
+                  subtitle: "data.filstørrelse - større end - 2000",
+                  conditions: [
+                    {
+                      field: "data.filstørrelse",
+                      action: "større end",
+                      value: "2000"
+                    }
+                  ],
+                  topic: "test-beriger",
+                  children: [],
                   isDirectory: true
-                }
-              ]
-            }
-          ]
-        },
-        {
-          title: "data.address.zip lig med 4400",
-          field: "data.address.zip",
-          action: "lig med",
-          value: "4400",
-          topic: "kommune-beriger",
-          isDirectory: true,
-          children: [
-            {
-              title: "data.filstørrelse større end 2000",
-              field: "data.filstørrelse",
-              action: "større end",
-              value: "2000",
-              topic: "??",
-              isDirectory: true,
-              children: []
-            },
-            {
-              title: "data.cvr lig med convergens",
-              field: "data.cvr",
-              action: "lig med",
-              value: "convergens",
-              topic: "cvr-beriger",
-              isDirectory: true,
-              children: []
-            }
-          ]
-        },
-        {
-          title: "data.filstørrelse større end 2000",
-          field: "data.filstørrelse",
-          action: "større end",
-          value: "2000",
-          topic: "??",
-          isDirectory: true,
-          children: [
-            {
-              title: "data.cvr lig med convergens",
-              field: "data.cvr",
-              action: "lig med",
-              value: "convergens",
-              topic: "cvr-beriger",
-              isDirectory: true,
-              children: [
-                {
-                  title: "data.address.zip lig med 4400",
-                  field: "data.address.zip",
-                  action: "lig med",
-                  value: "4400",
-                  topic: "kommune-beriger",
-                  isDirectory: true,
-                  children: []
                 }
               ]
             }
@@ -169,32 +181,35 @@ class Test extends Component {
     this.updateTreeData = this.updateTreeData.bind(this);
     this.expandAll = this.expandAll.bind(this);
     this.collapseAll = this.collapseAll.bind(this);
-    this.removeNode = TreeUtils.removeNodeAtPath.bind(this);
+    this.deleteNode = TreeUtils.removeNodeAtPath.bind(this);
     this.addNodeUnderParent = TreeUtils.addNodeUnderParent.bind(this);
     this.mapTree = TreeUtils.map.bind(this);
   }
 
   createRoutingSlipJson = (producerReference, conditionsList) => {
-    var jsonObj = `{"producerReference": "${producerReference}", conditionsList${conditionsList}}`;
+    var jsonObj = `{"producerReference": "${producerReference}", routingSlip${conditionsList}}`;
     return jsonObj;
   };
 
   generateRoutingSlip = async () => {
     count = 0;
+
     var oldJson = {};
     oldJson = JSON.parse(JSON.stringify(this.state.treeData)); //dårlig clone løsning
     var newJson = editConditionSlip(oldJson);
 
     const routingSlipString = `{"producerReference": "${
       this.state.producerReference
-    }", "conditionsList": ${JSON.stringify(newJson)}}`;
-
+    }", "routingSlip": {routes: ${JSON.stringify(newJson)}}}`;
+    /*
     const uuidv4 = require("uuid/v4");
     const dbUrl = url + uuidv4();
 
     let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString);
     alert(response);
-    // alert(JSON.stringify(newJson));
+    */
+
+    alert(routingSlipString);
   };
 
   updateTreeData(treeData) {
@@ -218,6 +233,24 @@ class Test extends Component {
     this.expand(false);
   }
 
+  onNodeConditionsChange = evt => {
+    var value = evt.target.value;
+    /* Til at ændre action til engelsk
+    if (evt.target.id.split("_")[0] === "action") {
+      value = optionsTranslator(evt.target.value);
+    }
+*/
+    const index = evt.target.id.split("_")[1];
+
+    var copy = [...this.state.newNodeconditions];
+
+    copy[index][evt.target.id.split("_")[0]] = value;
+
+    this.setState({
+      newNodeconditions: copy
+    });
+  };
+
   onNodeChange = evt => {
     this.setState({
       newNode: {
@@ -238,13 +271,25 @@ class Test extends Component {
     this.setState({ setShow: true });
   };
 
+  handleAddNodeCondition = () => {
+    this.setState({
+      newNodeconditions: this.state.newNodeconditions.concat([
+        { field: "", action: "", value: "" }
+      ])
+    });
+  };
+
+  handleRemoveNodeCondition = idx => () => {
+    this.setState({
+      newNodeconditions: this.state.newNodeconditions.filter(
+        (s, sidx) => idx !== sidx
+      )
+    });
+  };
+
   createNewNode = () => {
-    const title =
-      this.state.newNode.field +
-      " " +
-      this.state.newNode.action +
-      " " +
-      this.state.newNode.value;
+    const title = this.state.newNode.topic;
+    const subtitle = `${this.state.newNodeconditions[0].field} - ${this.state.newNodeconditions[0].action} - ${this.state.newNodeconditions[0].value}`;
 
     this.setState({
       treeData: this.addNodeUnderParent({
@@ -254,17 +299,77 @@ class Test extends Component {
         getNodeKey,
         newNode: {
           ...this.state.newNode,
-          title: title
+          title: title,
+          subtitle: subtitle,
+          conditions: this.state.newNodeconditions
         }
       }).treeData,
       setShow: false
     });
+
+    this.setState({
+      newNodeconditions: [{ field: "", action: "", value: "" }],
+      newNode: {
+        title: "",
+        topic: "",
+        parentKey: 0,
+        children: [],
+        isDirectory: true
+      }
+    });
+  };
+
+  handleCloseRemove = () => this.setState({ setShowRemove: false });
+  handleShowRemove = ({ parentKey }) => {
+    this.setState({ setShowRemove: true, nodeToDeleteParentKey: parentKey });
+  };
+
+  removeNode = () => {
+    this.setState({
+      treeData: this.deleteNode(
+        this.state.treeData,
+        this.state.nodeToDeleteParentKey,
+        getNodeKey
+      )
+    });
+    this.setState({ nodeToDeleteParentKey: null, setShowRemove: false });
+  };
+
+  removeNodeModal = () => {
+    return (
+      <Modal
+        size="sm"
+        show={this.state.setShowRemove}
+        onHide={this.handleCloseRemove}
+        animation={true}
+        autoFocus={true}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Slet Regel?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Hvis du sletter denne regel vil alle tilhørende regler også blive
+            slettet
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={this.handleCloseRemove}>
+            Anuller
+          </Button>
+          <Button variant="danger" onClick={this.removeNode}>
+            Slet
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
   };
 
   addNodeModal = () => {
     return (
       <>
         <Modal
+          size="lg"
           show={this.state.setShow}
           onHide={this.handleClose}
           animation={true}
@@ -274,41 +379,68 @@ class Test extends Component {
             <Modal.Title>Tilføj Ny Regel</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            {this.state.newNodeconditions.map((condition, idx) => (
+              <Form.Row key={idx}>
+                <Form.Group as={Col}>
+                  <Form.Label>Field</Form.Label>
+                  <Form.Control
+                    id={"field_" + idx}
+                    required
+                    placeholder={`field #${idx}`}
+                    value={condition.field}
+                    onChange={this.onNodeConditionsChange}
+                  />
+                </Form.Group>
+
+                <Form.Group as={Col}>
+                  <Form.Label>Action</Form.Label>
+                  <Form.Control
+                    as="select"
+                    id={"action_" + idx}
+                    value={condition.action}
+                    required
+                    onChange={this.onNodeConditionsChange}
+                  >
+                    <option hidden> ... </option>
+                    <option> lig med </option>
+                    <option> større end </option>
+                    <option> mindre end </option>
+                  </Form.Control>
+                </Form.Group>
+
+                <Form.Group as={Col}>
+                  <Form.Label>Value</Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      id={"value_" + idx}
+                      required
+                      placeholder={`value #${idx}`}
+                      value={condition.value}
+                      onChange={this.onNodeConditionsChange}
+                    />
+                    <Button
+                      disabled={
+                        this.state.newNodeconditions.length > 1 ? false : true
+                      }
+                      variant="outline-danger"
+                      onClick={this.handleRemoveNodeCondition(idx)}
+                    >
+                      -
+                    </Button>
+                  </InputGroup>
+                </Form.Group>
+              </Form.Row>
+            ))}
             <Form.Row>
-              <Form.Group as={Col}>
-                <Form.Label>Field</Form.Label>
-                <Form.Control
-                  id="field"
-                  required
-                  placeholder="field"
-                  onChange={this.onNodeChange}
-                />
-              </Form.Group>
-
-              <Form.Group as={Col}>
-                <Form.Label>Action</Form.Label>
-                <Form.Control
-                  as="select"
-                  id={"action"}
-                  required
-                  onChange={this.onNodeChange}
-                >
-                  <option> ... </option>
-                  <option> lig med </option>
-                  <option> større end </option>
-                  <option> mindre end </option>
-                </Form.Control>
-              </Form.Group>
-
-              <Form.Group as={Col}>
-                <Form.Label>Value</Form.Label>
-                <Form.Control
-                  id="value"
-                  required
-                  placeholder="value"
-                  onChange={this.onNodeChange}
-                />
-              </Form.Group>
+              <Form.Group as={Col} />
+              <Form.Group as={Col} />
+              <Form.Group as={Col} />
+              <Button
+                variant="outline-success"
+                onClick={this.handleAddNodeCondition}
+              >
+                +
+              </Button>
             </Form.Row>
             <Form.Row>
               <Form.Group as={Col}>
@@ -335,6 +467,16 @@ class Test extends Component {
     );
   };
 
+  showConditions = ({ node }) => {
+    this.setState({ nodeInfo: node, showPopup: true });
+  };
+
+  togglePopup = () => {
+    this.setState({
+      showPopup: !this.state.showPopup
+    });
+  };
+
   render() {
     const {
       treeData,
@@ -342,20 +484,27 @@ class Test extends Component {
       searchFocusIndex,
       searchFoundCount
     } = this.state;
-
+    /*
     const alertNodeInfo = ({ node, path, treeIndex }) => {
       const objectString = Object.keys(node)
         .map(k => (k === "children" ? "children: Array" : `${k}: '${node[k]}'`))
         .join(",\n   ");
 
+      const conditionsList = node.conditions.map(function(condition, index) {
+        return `Regel nr ${index +
+          1}:     ${condition.field} ${condition.action} ${condition.value}\n`;
+      });
+
       global.alert(
-        "Info passed to the icon and button generators:\n\n" +
-          `node: {\n   ${objectString}\n},\n` +
-          `path: [${path.join(", ")}],\n` +
-          `treeIndex: ${treeIndex}`
+        "Regler:\n\n" +
+          `${conditionsList}\n` +
+          `\n\n` +
+          `Path:\n     ${path}\n` +
+          `Tree Index:\n     ${treeIndex}\n` +
+          `Object:\n ${objectString}`
       );
     };
-
+*/
     const selectPrevMatch = () =>
       this.setState({
         searchFocusIndex:
@@ -374,64 +523,68 @@ class Test extends Component {
 
     return (
       <>
-        <Navbar>
-          <Navbar.Brand>Opret Routing Slip</Navbar.Brand>
-          <Nav className="mr-auto">
-            <Button variant="outline-secondary" onClick={this.expandAll}>
-              Udvid Regler
-            </Button>
-            <Button variant="outline-secondary" onClick={this.collapseAll}>
-              Kollaps Regler
-            </Button>
+        <Navbar collapseOnSelect expand="lg">
+          <Navbar.Brand>Ændring af Routing Slip</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="mr-auto">
+              <Button variant="outline-secondary" onClick={this.expandAll}>
+                Udvid Regler
+              </Button>
+              <Button variant="outline-secondary" onClick={this.collapseAll}>
+                Kollaps Regler
+              </Button>
+              <Form inline>
+                <FormControl
+                  type="text"
+                  placeholder="Søg I Regler"
+                  className="mr-sm-2"
+                  onChange={event =>
+                    this.setState({ searchString: event.target.value })
+                  }
+                />
+              </Form>
+              <button
+                type="button"
+                disabled={!searchFoundCount}
+                onClick={selectPrevMatch}
+              >
+                &lt;
+              </button>
+              <button
+                type="submit"
+                disabled={!searchFoundCount}
+                onClick={selectNextMatch}
+              >
+                &gt;
+              </button>
+              <span>
+                &nbsp;
+                {searchFoundCount > 0 ? searchFocusIndex + 1 : 0}
+                &nbsp;/&nbsp;
+                {searchFoundCount || 0}
+              </span>
+            </Nav>
             <Form inline>
-              <FormControl
-                type="text"
-                placeholder="Søg I Regler"
-                className="mr-sm-2"
-                onChange={event =>
-                  this.setState({ searchString: event.target.value })
-                }
+              <Form.Control
+                id="producerReference"
+                required
+                placeholder="producer reference navn"
+                onChange={event => {
+                  this.setState({ producerReference: event.target.value });
+                }}
               />
+              <Button
+                disabled={this.state.producerReference === "" ? true : false}
+                variant="outline-secondary"
+                onClick={this.generateRoutingSlip}
+              >
+                Tilføj Routing Slip
+              </Button>
             </Form>
-            <button
-              type="button"
-              disabled={!searchFoundCount}
-              onClick={selectPrevMatch}
-            >
-              &lt;
-            </button>
-            <button
-              type="submit"
-              disabled={!searchFoundCount}
-              onClick={selectNextMatch}
-            >
-              &gt;
-            </button>
-            <span>
-              &nbsp;
-              {searchFoundCount > 0 ? searchFocusIndex + 1 : 0}
-              &nbsp;/&nbsp;
-              {searchFoundCount || 0}
-            </span>
-          </Nav>
-          <Form inline>
-            <Form.Control
-              id="producerReference"
-              required
-              placeholder="producer reference navn"
-              onChange={event => {
-                this.setState({ producerReference: event.target.value });
-              }}
-            />
-            <Button
-              variant="outline-secondary"
-              onClick={this.generateRoutingSlip}
-            >
-              Tilføj Routing Slip
-            </Button>
-          </Form>
-
+          </Navbar.Collapse>
           <this.addNodeModal />
+          <this.removeNodeModal />
         </Navbar>
 
         <div
@@ -443,13 +596,20 @@ class Test extends Component {
           }}
         >
           <div style={{ flex: "1 0 50%", padding: "0 0 0 15px" }}>
+            {this.state.showPopup ? (
+              <Popup
+                node={this.state.nodeInfo}
+                closePopup={this.togglePopup.bind(this)}
+              />
+            ) : null}
+
             <SortableTree
               treeData={treeData}
               onChange={this.updateTreeData}
               searchQuery={searchString}
               searchFocusOffset={searchFocusIndex}
               //onlyExpandSearchedNodes="true"
-              rowHeight={rowInfo => (rowInfo.node.topic === "??" ? 65 : 65)}
+              rowHeight={rowInfo => (rowInfo.node.topic === "??" ? 60 : 60)}
               searchFinishCallback={matches =>
                 this.setState({
                   searchFoundCount: matches.length,
@@ -495,72 +655,53 @@ class Test extends Component {
                     ],
 
                 buttons: [
-                  <div>
-                    {" "}
-                    <h6 style={{}}>
-                      &nbsp;
-                      {rowInfo.node.topic}
-                      &nbsp;
-                    </h6>
-                  </div>,
-                  <button
+                  <Button
+                    variant="secondary"
                     style={{
                       padding: 0,
-                      borderRadius: "100%",
-                      backgroundColor: "gray",
-                      color: "white",
+                      margin: 2,
                       width: 20,
                       height: 20,
-                      border: 0,
-                      fontWeight: 100
+                      border: 10
                     }}
-                    onClick={() => alertNodeInfo(rowInfo)}
+                    onClick={() => this.showConditions(rowInfo)}
                   >
                     i
-                  </button>,
-                  <button
+                  </Button>,
+                  <Button
+                    variant="danger"
                     style={{
+                      //borderRadius: "100%",
                       padding: 0,
-                      borderRadius: "100%",
-                      backgroundColor: "red",
-                      color: "white",
+                      margin: 2,
                       width: 20,
                       height: 20,
-                      border: 0,
-                      fontWeight: 100
+                      border: 10
                     }}
-                    onClick={() =>
-                      this.setState({
-                        treeData: this.removeNode(
-                          this.state.treeData,
-                          rowInfo.path,
-                          getNodeKey
-                        )
-                      })
-                    }
+                    onClick={() => {
+                      this.handleShowRemove({ parentKey: rowInfo.path });
+                    }}
                   >
-                    R
-                  </button>,
-                  <button
+                    -
+                  </Button>,
+                  <Button
+                    variant="success"
                     style={{
+                      //borderRadius: "100%",
                       padding: 0,
-                      borderRadius: "100%",
-                      backgroundColor: "Green",
-                      color: "white",
+                      margin: 2,
                       width: 20,
                       height: 20,
-                      border: 0,
-                      fontWeight: 100
+                      border: 10
                     }}
                     onClick={() =>
                       this.handleShow({
-                        parentKey: rowInfo.path[rowInfo.path.length - 1],
-                        getNodeKey
+                        parentKey: rowInfo.path[rowInfo.path.length - 1]
                       })
                     }
                   >
-                    A
-                  </button>
+                    +
+                  </Button>
                 ]
               })}
             />

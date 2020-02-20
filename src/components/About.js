@@ -1,5 +1,9 @@
 import React, { Component } from "react";
+
 import SortableTree, { toggleExpandedForAll } from "react-sortable-tree";
+import * as TreeUtils from "./test/tree-data-utils";
+import "react-sortable-tree/style.css";
+
 import {
   Navbar,
   Nav,
@@ -8,31 +12,15 @@ import {
   FormControl,
   Modal,
   Col,
-  InputGroup,
-  Popover, OverlayTrigger
+  InputGroup
 } from "react-bootstrap";
 //import SendJson from "../fetch/SendJson";
 
-import * as TreeUtils from "./test/tree-data-utils";
-import "react-sortable-tree/style.css";
-
 const getNodeKey = ({ treeIndex }) => treeIndex;
-//const url = "http://cis-x.convergens.dk:5984/routingslips/";
 var count = 0;
+//const url = "http://cis-x.convergens.dk:5984/routingslips/";
 
-
-const popover = (
-  <Popover id="popover-basic">
-    <Popover.Title as="h3">Popover right</Popover.Title>
-    <Popover.Content>
-      And here's some <strong>amazing</strong> content. It's very engaging.
-      right?
-    </Popover.Content>
-  </Popover>
-);
-
-
-
+/*
 function optionsTranslator(value) {
   switch (value) {
     case "lig med":
@@ -49,6 +37,7 @@ function optionsTranslator(value) {
   }
   return value;
 }
+*/
 
 function toDelete(index) {
   if (index === "expanded") return true;
@@ -96,22 +85,28 @@ class About extends Component {
     super(props);
 
     this.state = {
+      producerReference: "",
+
+      setShow: false,
       newNodeconditions: [{ field: "", action: "", value: "" }],
       newNode: {
         title: "",
         topic: "",
         children: [],
+        parentKey: 0,
         isDirectory: true
       },
 
-      setShow: false,
+      setShowRemove: false,
+      nodeToDeleteParentKey: null,
+
       searchString: "",
       searchFocusIndex: 0,
       searchFoundCount: null,
-      producerReference: "",
+
       treeData: [
         {
-          title: "data.cvr lig med convergens",
+          title: "cvr-beriger",
           conditions: [
             { field: "data.cvr", action: "lig med", value: "convergens" }
           ],
@@ -119,7 +114,7 @@ class About extends Component {
           isDirectory: true,
           children: [
             {
-              title: "data.address.zip lig med 4400",
+              title: "kommune-beriger",
               condtions: [
                 { field: "data.address.zip", action: "lig med", value: "4400" }
               ],
@@ -127,7 +122,7 @@ class About extends Component {
               isDirectory: true,
               children: [
                 {
-                  title: "data.filstørrelse større end 2000",
+                  title: "test-beriger",
                   conditions: [
                     {
                       field: "data.filstørrelse",
@@ -135,7 +130,7 @@ class About extends Component {
                       value: "2000"
                     }
                   ],
-                  topic: "??",
+                  topic: "test-beriger",
                   children: [],
                   isDirectory: true
                 }
@@ -149,7 +144,7 @@ class About extends Component {
     this.updateTreeData = this.updateTreeData.bind(this);
     this.expandAll = this.expandAll.bind(this);
     this.collapseAll = this.collapseAll.bind(this);
-    this.removeNode = TreeUtils.removeNodeAtPath.bind(this);
+    this.deleteNode = TreeUtils.removeNodeAtPath.bind(this);
     this.addNodeUnderParent = TreeUtils.addNodeUnderParent.bind(this);
     this.mapTree = TreeUtils.map.bind(this);
   }
@@ -203,7 +198,7 @@ class About extends Component {
 
   onNodeConditionsChange = evt => {
     var value = evt.target.value;
-    /*
+    /* Til at ændre action til engelsk
     if (evt.target.id.split("_")[0] === "action") {
       value = optionsTranslator(evt.target.value);
     }
@@ -256,12 +251,7 @@ class About extends Component {
   };
 
   createNewNode = () => {
-    const title =
-      this.state.newNodeconditions[0].field +
-      " " +
-      this.state.newNodeconditions[0].action +
-      " " +
-      this.state.newNodeconditions[0].value;
+    const title = this.state.newNode.topic;
 
     this.setState({
       treeData: this.addNodeUnderParent({
@@ -283,17 +273,64 @@ class About extends Component {
       newNode: {
         title: "",
         topic: "",
+        parentKey: 0,
         children: [],
         isDirectory: true
       }
     });
   };
 
+  handleCloseRemove = () => this.setState({ setShowRemove: false });
+  handleShowRemove = ({ parentKey }) => {
+    this.setState({ setShowRemove: true, nodeToDeleteParentKey: parentKey });
+  };
+
+  removeNode = () => {
+    this.setState({
+      treeData: this.deleteNode(
+        this.state.treeData,
+        this.state.nodeToDeleteParentKey,
+        getNodeKey
+      )
+    });
+    this.setState({ nodeToDeleteParentKey: null, setShowRemove: false})
+  };
+
+  removeNodeModal = () => {
+    return (
+      <Modal
+        size="sm"
+        show={this.state.setShowRemove}
+        onHide={this.handleCloseRemove}
+        animation={true}
+        autoFocus={true}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Slet Regel?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Hvis du sletter denne regel vil alle tilhørende regler også blive
+            slettet
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={this.handleCloseRemove}>
+            Anuller
+          </Button>
+          <Button variant="danger" onClick={this.removeNode}>
+            Slet
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  };
+
   addNodeModal = () => {
     return (
       <>
         <Modal
-          //size="lg"
+          size="lg"
           show={this.state.setShow}
           onHide={this.handleClose}
           animation={true}
@@ -355,7 +392,6 @@ class About extends Component {
                 </Form.Group>
               </Form.Row>
             ))}
-            {console.log(this.state.newNodeconditions)}
             <Form.Row>
               <Form.Group as={Col} />
               <Form.Group as={Col} />
@@ -405,11 +441,18 @@ class About extends Component {
         .map(k => (k === "children" ? "children: Array" : `${k}: '${node[k]}'`))
         .join(",\n   ");
 
+      const conditionsList = node.conditions.map(function(condition, index) {
+        return `Regel nr ${index +
+          1}:     ${condition.field} ${condition.action} ${condition.value}\n`;
+      });
+
       global.alert(
-        "Info passed to the icon and button generators:\n\n" +
-          `node: {\n   ${objectString}\n},\n` +
-          `path: [${path.join(", ")}],\n` +
-          `treeIndex: ${treeIndex}`
+        "Regler:\n\n" +
+          `${conditionsList}\n` +
+          `\n\n` +
+          `Path:\n     ${path}\n` +
+          `Tree Index:\n     ${treeIndex}\n` +
+          `Object:\n ${objectString}`
       );
     };
 
@@ -492,6 +535,7 @@ class About extends Component {
             </Form>
           </Navbar.Collapse>
           <this.addNodeModal />
+          <this.removeNodeModal />
         </Navbar>
 
         <div
@@ -555,21 +599,6 @@ class About extends Component {
                     ],
 
                 buttons: [
-                  <div>
-                    {" "}
-                    <h6 style={{}}>
-                      &nbsp;
-                      {rowInfo.node.topic}
-                      &nbsp;
-                    </h6>
-                  </div>,
-                  <OverlayTrigger
-                    trigger="click"
-                    placement="right"
-                    overlay={popover}
-                  >
-                    <button></button>
-                  </OverlayTrigger>,
                   <button
                     style={{
                       padding: 0,
@@ -596,15 +625,9 @@ class About extends Component {
                       border: 0,
                       fontWeight: 100
                     }}
-                    onClick={() =>
-                      this.setState({
-                        treeData: this.removeNode(
-                          this.state.treeData,
-                          rowInfo.path,
-                          getNodeKey
-                        )
-                      })
-                    }
+                    onClick={() => {
+                      this.handleShowRemove({ parentKey: rowInfo.path });
+                    }}
                   >
                     R
                   </button>,
@@ -621,8 +644,7 @@ class About extends Component {
                     }}
                     onClick={() =>
                       this.handleShow({
-                        parentKey: rowInfo.path[rowInfo.path.length - 1],
-                        getNodeKey
+                        parentKey: rowInfo.path[rowInfo.path.length - 1]
                       })
                     }
                   >
