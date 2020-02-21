@@ -3,11 +3,21 @@ import { Form, Button, Modal, Col, InputGroup } from "react-bootstrap";
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
 
+
 class AddNodeModal extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      newNodeconditions: [{ field: "", action: "", value: "" }],
+      newNode: {
+        title: "",
+        topic: "",
+        children: [],
+        parentKey: 0,
+        isDirectory: true
+      }
+    };
   }
 
   handleClose = () => this.setState({ setShow: false });

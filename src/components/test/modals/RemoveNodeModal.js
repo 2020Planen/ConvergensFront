@@ -2,11 +2,11 @@ import React from "react";
 
 import { Button, Modal } from "react-bootstrap";
 
-const removeNodeModal = ({ setShowRemove, removeNode, handleCloseRemove }) => {
+const removeNodeModal = ({ showRemoveNodeModal, removeNode, handleCloseRemove }) => {
   return (
     <Modal
       size="sm"
-      show={setShowRemove}
+      show={showRemoveNodeModal}
       onHide={handleCloseRemove}
       animation={true}
       autoFocus={true}

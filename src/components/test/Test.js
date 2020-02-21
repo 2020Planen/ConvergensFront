@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import SortableTree, { toggleExpandedForAll } from "react-sortable-tree";
 import * as TreeUtils from "./tree-data-utils";
 import "react-sortable-tree/style.css";
-import "./test.css";
 
 import {
   Navbar,
@@ -19,102 +18,13 @@ import {
 import SendJson from "../../fetch/SendJson"
 import RemoveNodeModal from "./modals/RemoveNodeModal"
 //import AddNodeModal from "./modals/AddNodeModal"
-
+import ShowNodeData from "./modals/showNodeData"
+import TreeJsonParser from "./dataParsing/TreeJsonParser"
 
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
-var count = 0;
 const url = "http://cis-x.convergens.dk:5984/routingslips/";
 
-function optionsTranslator(value) {
-  switch (value) {
-    case "lig med":
-      value = "equals";
-      break;
-    case "større end":
-      value = "greater than";
-      break;
-    case "mindre end":
-      value = "less than";
-      break;
-    default:
-      value = "";
-  }
-  return value;
-}
-
-function toDelete(index) {
-  if (index === "expanded") return true;
-  if (index === "isDirectory") return true;
-  if (index === "title") return true;
-  if (index === "parentKey") return true;
-  if (index === "subtitle") return true;
-
-  return false;
-}
-
-function editConditionSlip(input) {
-  if (Array.isArray(input)) {
-    for (var index = input.length - 1; index >= 0; index--) {
-      if (typeof input[index] == "object") {
-        editConditionSlip(input[index]);
-      }
-      if (toDelete(index)) {
-        input.splice(index, 1);
-      }
-    }
-  } else {
-    for (var jndex in input) {
-      if (typeof input[jndex] == "object") {
-        editConditionSlip(input[jndex]);
-      }
-      if (toDelete(jndex)) {
-        delete input[jndex];
-      }
-      if (jndex === "conditions") {
-        input.priority = count;
-        count++;
-      }
-      if (jndex === "children") {
-        input.routes = input[jndex];
-        delete input[jndex];
-      }
-      if (jndex === "action") {
-        input.action = optionsTranslator(input[jndex]);
-      }
-    }
-  }
-  return input;
-}
-
-class Popup extends React.Component {
-  render() {
-    if (this.props.node.title !== undefined) {
-      return (
-        <div className="popup">
-          <div className="inside_popup">
-            <h5>Regler for {this.props.node.title}: </h5>
-            <button className="close" onClick={this.props.closePopup}>
-              &times;
-            </button>
-            {this.props.node.conditions.map((condition, index) => {
-              return (
-                <p key={condition + index}>
-                  {" "}
-                  <strong>Regel {index + 1}:</strong> {condition.field}{" "}
-                  <strong>-</strong> {condition.action} <strong>-</strong>{" "}
-                  {condition.value}{" "}
-                </p>
-              );
-            })}
-          </div>
-        </div>
-      );
-    } else {
-      return <> </>;
-    }
-  }
-}
 
 class Test extends Component {
   constructor(props) {
@@ -127,7 +37,7 @@ class Test extends Component {
 
       producerReference: "",
 
-      setShow: false,
+      showAddNodeModal: false,
       newNodeconditions: [{ field: "", action: "", value: "" }],
       newNode: {
         title: "",
@@ -137,7 +47,7 @@ class Test extends Component {
         isDirectory: true
       },
 
-      setShowRemove: false,
+      showRemoveNodeModal: false,
       nodeToDeleteParentKey: null,
 
       searchString: "",
@@ -198,11 +108,10 @@ class Test extends Component {
   };
 
   generateRoutingSlip = async () => {
-    count = 0;
 
     var oldJson = {};
     oldJson = JSON.parse(JSON.stringify(this.state.treeData)); //dårlig clone løsning
-    var newJson = editConditionSlip(oldJson);
+    var newJson = TreeJsonParser.editConditionSlip(0, oldJson);
 
     const routingSlipString = `{"producerReference": "${
       this.state.producerReference
@@ -261,9 +170,9 @@ class Test extends Component {
   };
 
   
-  handleCloseRemove = () => this.setState({ setShowRemove: false });
+  handleCloseRemove = () => this.setState({ showRemoveNodeModal: false });
   handleShowRemove = ({ parentKey }) => {
-    this.setState({ setShowRemove: true, nodeToDeleteParentKey: parentKey });
+    this.setState({ showRemoveNodeModal: true, nodeToDeleteParentKey: parentKey });
   };
   
   removeNode = () => {
@@ -274,11 +183,11 @@ class Test extends Component {
         getNodeKey
         )
       });
-      this.setState({ nodeToDeleteParentKey: null, setShowRemove: false });
+      this.setState({ nodeToDeleteParentKey: null, showRemoveNodeModal: false });
     };
    
   
-  handleClose = () => this.setState({ setShow: false });
+  handleClose = () => this.setState({ showAddNodeModal: false });
   handleShow = ({ parentKey }) => {
     this.setState({
       newNode: {
@@ -286,7 +195,7 @@ class Test extends Component {
         parentKey: parentKey
       }
     });
-    this.setState({ setShow: true });
+    this.setState({ showAddNodeModal: true });
   };
 
   handleAddNodeCondition = () => {
@@ -322,7 +231,7 @@ class Test extends Component {
           conditions: this.state.newNodeconditions
         }
       }).treeData,
-      setShow: false
+      showAddNodeModal: false
     });
 
     this.setState({
@@ -341,7 +250,7 @@ class Test extends Component {
       <>
         <Modal
           size="lg"
-          show={this.state.setShow}
+          show={this.state.showAddNodeModal}
           onHide={this.handleClose}
           animation={true}
           autoFocus={true}
@@ -556,7 +465,7 @@ class Test extends Component {
           </Navbar.Collapse>
           <this.addNodeModal />
           {//<this.removeNodeModal />
-          } <RemoveNodeModal setShowRemove={this.state.setShowRemove} removeNode={this.removeNode} handleCloseRemove={this.handleCloseRemove} />
+          } <RemoveNodeModal showRemoveNodeModal={this.state.showRemoveNodeModal} removeNode={this.removeNode} handleCloseRemove={this.handleCloseRemove} />
         </Navbar>
 
         <div
@@ -569,7 +478,7 @@ class Test extends Component {
         >
           <div style={{ flex: "1 0 50%", padding: "0 0 0 15px" }}>
             {this.state.showPopup ? (
-              <Popup
+              <ShowNodeData
                 node={this.state.nodeInfo}
                 closePopup={this.togglePopup.bind(this)}
               />
