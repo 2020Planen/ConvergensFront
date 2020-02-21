@@ -16,11 +16,16 @@ import {
   InputGroup
 } from "react-bootstrap";
 
+import SendJson from "../../fetch/SendJson"
+import RemoveNodeModal from "./modals/RemoveNodeModal"
+//import AddNodeModal from "./modals/AddNodeModal"
+
+
+
 const getNodeKey = ({ treeIndex }) => treeIndex;
 var count = 0;
-//const url = "http://cis-x.convergens.dk:5984/routingslips/";
+const url = "http://cis-x.convergens.dk:5984/routingslips/";
 
-/* 
 function optionsTranslator(value) {
   switch (value) {
     case "lig med":
@@ -37,13 +42,13 @@ function optionsTranslator(value) {
   }
   return value;
 }
-*/
 
 function toDelete(index) {
   if (index === "expanded") return true;
   if (index === "isDirectory") return true;
   if (index === "title") return true;
   if (index === "parentKey") return true;
+  if (index === "subtitle") return true;
 
   return false;
 }
@@ -74,6 +79,9 @@ function editConditionSlip(input) {
         input.routes = input[jndex];
         delete input[jndex];
       }
+      if (jndex === "action") {
+        input.action = optionsTranslator(input[jndex]);
+      }
     }
   }
   return input;
@@ -81,27 +89,25 @@ function editConditionSlip(input) {
 
 class Popup extends React.Component {
   render() {
-    //console.log(this.props);
     if (this.props.node.title !== undefined) {
       return (
         <div className="popup">
-          <h5>Regler for {this.props.node.title}: </h5>
-          {this.props.node.conditions.map((condition, index) => {
-            return (
-              <p key={condition + index}>
-                {" "}
-                Regel {index + 1}: {condition.field} - {condition.field} -{" "}
-                {condition.value}{" "}
-              </p>
-            );
-          })}
-          <Button
-            size="sm"
-            variant="outline-secondary"
-            onClick={this.props.closePopup}
-          >
-            -
-          </Button>
+          <div className="inside_popup">
+            <h5>Regler for {this.props.node.title}: </h5>
+            <button className="close" onClick={this.props.closePopup}>
+              &times;
+            </button>
+            {this.props.node.conditions.map((condition, index) => {
+              return (
+                <p key={condition + index}>
+                  {" "}
+                  <strong>Regel {index + 1}:</strong> {condition.field}{" "}
+                  <strong>-</strong> {condition.action} <strong>-</strong>{" "}
+                  {condition.value}{" "}
+                </p>
+              );
+            })}
+          </div>
         </div>
       );
     } else {
@@ -200,16 +206,16 @@ class Test extends Component {
 
     const routingSlipString = `{"producerReference": "${
       this.state.producerReference
-    }", "routingSlip": {routes: ${JSON.stringify(newJson)}}}`;
-    /*
+    }", "routingSlip": {"routes": ${JSON.stringify(newJson)}}}`;
+    
+    //console.log(routingSlipString);
     const uuidv4 = require("uuid/v4");
     const dbUrl = url + uuidv4();
 
     let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString);
-    alert(response);
-    */
+    alert(JSON.stringify(response));
+    
 
-    alert(routingSlipString);
   };
 
   updateTreeData(treeData) {
@@ -235,15 +241,9 @@ class Test extends Component {
 
   onNodeConditionsChange = evt => {
     var value = evt.target.value;
-    /* Til at ændre action til engelsk
-    if (evt.target.id.split("_")[0] === "action") {
-      value = optionsTranslator(evt.target.value);
-    }
-*/
     const index = evt.target.id.split("_")[1];
 
     var copy = [...this.state.newNodeconditions];
-
     copy[index][evt.target.id.split("_")[0]] = value;
 
     this.setState({
@@ -260,6 +260,24 @@ class Test extends Component {
     });
   };
 
+  
+  handleCloseRemove = () => this.setState({ setShowRemove: false });
+  handleShowRemove = ({ parentKey }) => {
+    this.setState({ setShowRemove: true, nodeToDeleteParentKey: parentKey });
+  };
+  
+  removeNode = () => {
+    this.setState({
+      treeData: this.deleteNode(
+        this.state.treeData,
+        this.state.nodeToDeleteParentKey,
+        getNodeKey
+        )
+      });
+      this.setState({ nodeToDeleteParentKey: null, setShowRemove: false });
+    };
+   
+  
   handleClose = () => this.setState({ setShow: false });
   handleShow = ({ parentKey }) => {
     this.setState({
@@ -318,53 +336,6 @@ class Test extends Component {
       }
     });
   };
-
-  handleCloseRemove = () => this.setState({ setShowRemove: false });
-  handleShowRemove = ({ parentKey }) => {
-    this.setState({ setShowRemove: true, nodeToDeleteParentKey: parentKey });
-  };
-
-  removeNode = () => {
-    this.setState({
-      treeData: this.deleteNode(
-        this.state.treeData,
-        this.state.nodeToDeleteParentKey,
-        getNodeKey
-      )
-    });
-    this.setState({ nodeToDeleteParentKey: null, setShowRemove: false });
-  };
-
-  removeNodeModal = () => {
-    return (
-      <Modal
-        size="sm"
-        show={this.state.setShowRemove}
-        onHide={this.handleCloseRemove}
-        animation={true}
-        autoFocus={true}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Slet Regel?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>
-            Hvis du sletter denne regel vil alle tilhørende regler også blive
-            slettet
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={this.handleCloseRemove}>
-            Anuller
-          </Button>
-          <Button variant="danger" onClick={this.removeNode}>
-            Slet
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  };
-
   addNodeModal = () => {
     return (
       <>
@@ -524,7 +495,7 @@ class Test extends Component {
     return (
       <>
         <Navbar collapseOnSelect expand="lg">
-          <Navbar.Brand>Ændring af Routing Slip</Navbar.Brand>
+          <Navbar.Brand>Opret Routing Slip</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
@@ -584,7 +555,8 @@ class Test extends Component {
             </Form>
           </Navbar.Collapse>
           <this.addNodeModal />
-          <this.removeNodeModal />
+          {//<this.removeNodeModal />
+          } <RemoveNodeModal setShowRemove={this.state.setShowRemove} removeNode={this.removeNode} handleCloseRemove={this.handleCloseRemove} />
         </Navbar>
 
         <div
@@ -656,7 +628,7 @@ class Test extends Component {
 
                 buttons: [
                   <Button
-                    variant="secondary"
+                    variant="info"
                     style={{
                       padding: 0,
                       margin: 2,
@@ -705,6 +677,22 @@ class Test extends Component {
                 ]
               })}
             />
+            {this.state.treeData.length === 0 ? (
+              <>
+                <h5>Du har ingen regler </h5>
+                <Button
+                  variant="success"
+                  onClick={() =>
+                    this.handleShow({
+                      parentKey: null
+                    })
+                  }
+                >
+                  Opret en regel
+                </Button>
+                
+              </>
+            ) : null}
           </div>
         </div>
       </>
