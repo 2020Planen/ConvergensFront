@@ -1,6 +1,6 @@
 .popup {
   z-index: 1;
-  position: fixed;
+  position: absolute;
   float: right;
   right: 20px;
 
@@ -24,7 +24,8 @@
 .popup h5 {
   margin-top: 0;
   border-bottom: 1px solid #333;
-  padding-bottom:3px;
+  padding-bottom:10px;
+  padding-right: 50px;
 }
 .popup .close {
   position: absolute;

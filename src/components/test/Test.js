@@ -10,21 +10,16 @@ import {
   Form,
   Button,
   FormControl,
-  Modal,
-  Col,
-  InputGroup
 } from "react-bootstrap";
 
-import SendJson from "../../fetch/SendJson"
-import RemoveNodeModal from "./modals/RemoveNodeModal"
-//import AddNodeModal from "./modals/AddNodeModal"
-import ShowNodeData from "./modals/showNodeData"
-import TreeJsonParser from "./dataParsing/TreeJsonParser"
-
+import SendJson from "../../fetch/SendJson";
+import TreeJsonParser from "./dataParsing/TreeJsonParser";
+import ShowNodeData from "./modals/showNodeData";
+import RemoveNodeModal from "./modals/RemoveNodeModal";
+import AddNodeModal from "./modals/AddNodeModal";
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
 const url = "http://cis-x.convergens.dk:5984/routingslips/";
-
 
 class Test extends Component {
   constructor(props) {
@@ -38,14 +33,7 @@ class Test extends Component {
       producerReference: "",
 
       showAddNodeModal: false,
-      newNodeconditions: [{ field: "", action: "", value: "" }],
-      newNode: {
-        title: "",
-        topic: "",
-        children: [],
-        parentKey: 0,
-        isDirectory: true
-      },
+   
 
       showRemoveNodeModal: false,
       nodeToDeleteParentKey: null,
@@ -102,13 +90,7 @@ class Test extends Component {
     this.mapTree = TreeUtils.map.bind(this);
   }
 
-  createRoutingSlipJson = (producerReference, conditionsList) => {
-    var jsonObj = `{"producerReference": "${producerReference}", routingSlip${conditionsList}}`;
-    return jsonObj;
-  };
-
   generateRoutingSlip = async () => {
-
     var oldJson = {};
     oldJson = JSON.parse(JSON.stringify(this.state.treeData)); //dårlig clone løsning
     var newJson = TreeJsonParser.editConditionSlip(0, oldJson);
@@ -116,15 +98,12 @@ class Test extends Component {
     const routingSlipString = `{"producerReference": "${
       this.state.producerReference
     }", "routingSlip": {"routes": ${JSON.stringify(newJson)}}}`;
-    
-    //console.log(routingSlipString);
+
     const uuidv4 = require("uuid/v4");
     const dbUrl = url + uuidv4();
 
     let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString);
     alert(JSON.stringify(response));
-    
-
   };
 
   updateTreeData(treeData) {
@@ -148,45 +127,25 @@ class Test extends Component {
     this.expand(false);
   }
 
-  onNodeConditionsChange = evt => {
-    var value = evt.target.value;
-    const index = evt.target.id.split("_")[1];
-
-    var copy = [...this.state.newNodeconditions];
-    copy[index][evt.target.id.split("_")[0]] = value;
-
-    this.setState({
-      newNodeconditions: copy
-    });
-  };
-
-  onNodeChange = evt => {
-    this.setState({
-      newNode: {
-        ...this.state.newNode,
-        [evt.target.id]: evt.target.value
-      }
-    });
-  };
-
-  
   handleCloseRemove = () => this.setState({ showRemoveNodeModal: false });
   handleShowRemove = ({ parentKey }) => {
-    this.setState({ showRemoveNodeModal: true, nodeToDeleteParentKey: parentKey });
+    this.setState({
+      showRemoveNodeModal: true,
+      nodeToDeleteParentKey: parentKey
+    });
   };
-  
+
   removeNode = () => {
     this.setState({
       treeData: this.deleteNode(
         this.state.treeData,
         this.state.nodeToDeleteParentKey,
         getNodeKey
-        )
-      });
-      this.setState({ nodeToDeleteParentKey: null, showRemoveNodeModal: false });
-    };
-   
-  
+      )
+    });
+    this.setState({ nodeToDeleteParentKey: null, showRemoveNodeModal: false });
+  };
+
   handleClose = () => this.setState({ showAddNodeModal: false });
   handleShow = ({ parentKey }) => {
     this.setState({
@@ -198,162 +157,32 @@ class Test extends Component {
     this.setState({ showAddNodeModal: true });
   };
 
-  handleAddNodeCondition = () => {
-    this.setState({
-      newNodeconditions: this.state.newNodeconditions.concat([
-        { field: "", action: "", value: "" }
-      ])
-    });
-  };
-
-  handleRemoveNodeCondition = idx => () => {
-    this.setState({
-      newNodeconditions: this.state.newNodeconditions.filter(
-        (s, sidx) => idx !== sidx
-      )
-    });
-  };
-
-  createNewNode = () => {
-    const title = this.state.newNode.topic;
-    const subtitle = `${this.state.newNodeconditions[0].field} - ${this.state.newNodeconditions[0].action} - ${this.state.newNodeconditions[0].value}`;
+  createNewNode = (newNode) => {
 
     this.setState({
       treeData: this.addNodeUnderParent({
         treeData: this.state.treeData,
-        parentKey: this.state.newNode.parentKey,
+        parentKey: newNode.parentKey,
         expandParent: true,
         getNodeKey,
-        newNode: {
-          ...this.state.newNode,
-          title: title,
-          subtitle: subtitle,
-          conditions: this.state.newNodeconditions
-        }
+        newNode: newNode
       }).treeData,
       showAddNodeModal: false
     });
-
-    this.setState({
-      newNodeconditions: [{ field: "", action: "", value: "" }],
-      newNode: {
-        title: "",
-        topic: "",
-        parentKey: 0,
-        children: [],
-        isDirectory: true
-      }
-    });
-  };
-  addNodeModal = () => {
-    return (
-      <>
-        <Modal
-          size="lg"
-          show={this.state.showAddNodeModal}
-          onHide={this.handleClose}
-          animation={true}
-          autoFocus={true}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Tilføj Ny Regel</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {this.state.newNodeconditions.map((condition, idx) => (
-              <Form.Row key={idx}>
-                <Form.Group as={Col}>
-                  <Form.Label>Field</Form.Label>
-                  <Form.Control
-                    id={"field_" + idx}
-                    required
-                    placeholder={`field #${idx}`}
-                    value={condition.field}
-                    onChange={this.onNodeConditionsChange}
-                  />
-                </Form.Group>
-
-                <Form.Group as={Col}>
-                  <Form.Label>Action</Form.Label>
-                  <Form.Control
-                    as="select"
-                    id={"action_" + idx}
-                    value={condition.action}
-                    required
-                    onChange={this.onNodeConditionsChange}
-                  >
-                    <option hidden> ... </option>
-                    <option> lig med </option>
-                    <option> større end </option>
-                    <option> mindre end </option>
-                  </Form.Control>
-                </Form.Group>
-
-                <Form.Group as={Col}>
-                  <Form.Label>Value</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      id={"value_" + idx}
-                      required
-                      placeholder={`value #${idx}`}
-                      value={condition.value}
-                      onChange={this.onNodeConditionsChange}
-                    />
-                    <Button
-                      disabled={
-                        this.state.newNodeconditions.length > 1 ? false : true
-                      }
-                      variant="outline-danger"
-                      onClick={this.handleRemoveNodeCondition(idx)}
-                    >
-                      -
-                    </Button>
-                  </InputGroup>
-                </Form.Group>
-              </Form.Row>
-            ))}
-            <Form.Row>
-              <Form.Group as={Col} />
-              <Form.Group as={Col} />
-              <Form.Group as={Col} />
-              <Button
-                variant="outline-success"
-                onClick={this.handleAddNodeCondition}
-              >
-                +
-              </Button>
-            </Form.Row>
-            <Form.Row>
-              <Form.Group as={Col}>
-                <Form.Label>Topic</Form.Label>
-                <Form.Control
-                  id="topic"
-                  required
-                  placeholder="topic"
-                  onChange={this.onNodeChange}
-                />
-              </Form.Group>
-            </Form.Row>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="outline-secondary" onClick={this.handleClose}>
-              Luk
-            </Button>
-            <Button variant="secondary" onClick={this.createNewNode}>
-              Tilføj regel
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </>
-    );
   };
 
   showConditions = ({ node }) => {
-    this.setState({ nodeInfo: node, showPopup: true });
+    this.setState({
+      searchString: node.subtitle,
+      nodeInfo: node,
+      showPopup: true
+    });
   };
 
   togglePopup = () => {
     this.setState({
-      showPopup: !this.state.showPopup
+      showPopup: false,
+      searchString: ""
     });
   };
 
@@ -364,27 +193,8 @@ class Test extends Component {
       searchFocusIndex,
       searchFoundCount
     } = this.state;
-    /*
-    const alertNodeInfo = ({ node, path, treeIndex }) => {
-      const objectString = Object.keys(node)
-        .map(k => (k === "children" ? "children: Array" : `${k}: '${node[k]}'`))
-        .join(",\n   ");
-
-      const conditionsList = node.conditions.map(function(condition, index) {
-        return `Regel nr ${index +
-          1}:     ${condition.field} ${condition.action} ${condition.value}\n`;
-      });
-
-      global.alert(
-        "Regler:\n\n" +
-          `${conditionsList}\n` +
-          `\n\n` +
-          `Path:\n     ${path}\n` +
-          `Tree Index:\n     ${treeIndex}\n` +
-          `Object:\n ${objectString}`
-      );
-    };
-*/
+ 
+  
     const selectPrevMatch = () =>
       this.setState({
         searchFocusIndex:
@@ -463,9 +273,20 @@ class Test extends Component {
               </Button>
             </Form>
           </Navbar.Collapse>
-          <this.addNodeModal />
-          {//<this.removeNodeModal />
-          } <RemoveNodeModal showRemoveNodeModal={this.state.showRemoveNodeModal} removeNode={this.removeNode} handleCloseRemove={this.handleCloseRemove} />
+
+          {this.state.showAddNodeModal === true ?<AddNodeModal
+            showAddNodeModal={this.state.showAddNodeModal}
+            handleClose={this.handleClose}
+            parentKey={this.state.newNode.parentKey}
+            createNewNode={this.createNewNode}
+          /> : null }
+
+          <RemoveNodeModal
+            showRemoveNodeModal={this.state.showRemoveNodeModal}
+            removeNode={this.removeNode}
+            handleCloseRemove={this.handleCloseRemove}
+          />
+          
         </Navbar>
 
         <div
@@ -599,7 +420,6 @@ class Test extends Component {
                 >
                   Opret en regel
                 </Button>
-                
               </>
             ) : null}
           </div>

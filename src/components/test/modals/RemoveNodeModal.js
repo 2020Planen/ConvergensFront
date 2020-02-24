@@ -3,6 +3,8 @@ import React from "react";
 import { Button, Modal } from "react-bootstrap";
 
 const removeNodeModal = ({ showRemoveNodeModal, removeNode, handleCloseRemove }) => {
+  
+  
   return (
     <Modal
       size="sm"

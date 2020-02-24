@@ -1,34 +1,43 @@
 import React, { Component } from "react";
 import { Form, Button, Modal, Col, InputGroup } from "react-bootstrap";
 
-const getNodeKey = ({ treeIndex }) => treeIndex;
-
 
 class AddNodeModal extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      onShow: this.props.showAddNodeModal,
       newNodeconditions: [{ field: "", action: "", value: "" }],
       newNode: {
         title: "",
         topic: "",
         children: [],
-        parentKey: 0,
+        parentKey: this.props.parentKey,
         isDirectory: true
       }
     };
   }
 
-  handleClose = () => this.setState({ setShow: false });
-  handleShow = ({ parentKey }) => {
+  onNodeConditionsChange = evt => {
+    var value = evt.target.value;
+    const index = evt.target.id.split("_")[1];
+
+    var copy = [...this.state.newNodeconditions];
+    copy[index][evt.target.id.split("_")[0]] = value;
+
+    this.setState({
+      newNodeconditions: copy
+    });
+  };
+
+  onNodeChange = evt => {
     this.setState({
       newNode: {
         ...this.state.newNode,
-        parentKey: parentKey
+        [evt.target.id]: evt.target.value
       }
     });
-    this.setState({ setShow: true });
   };
 
   handleAddNodeCondition = () => {
@@ -51,21 +60,14 @@ class AddNodeModal extends Component {
     const title = this.state.newNode.topic;
     const subtitle = `${this.state.newNodeconditions[0].field} - ${this.state.newNodeconditions[0].action} - ${this.state.newNodeconditions[0].value}`;
 
-    this.setState({
-      treeData: this.addNodeUnderParent({
-        treeData: this.state.treeData,
-        parentKey: this.state.newNode.parentKey,
-        expandParent: true,
-        getNodeKey,
-        newNode: {
-          ...this.state.newNode,
-          title: title,
-          subtitle: subtitle,
-          conditions: this.state.newNodeconditions
-        }
-      }).treeData,
-      setShow: false
-    });
+    const newNode = {
+      ...this.state.newNode,
+      title: title,
+      subtitle: subtitle,
+      conditions: this.state.newNodeconditions
+    };
+
+    this.props.createNewNode(newNode)
 
     this.setState({
       newNodeconditions: [{ field: "", action: "", value: "" }],
@@ -78,13 +80,15 @@ class AddNodeModal extends Component {
       }
     });
   };
+
+
   render() {
     return (
       <>
         <Modal
           size="lg"
-          show={this.state.setShow}
-          onHide={this.handleClose}
+          show={this.state.onShow}
+          onHide={this.props.handleClose}
           animation={true}
           autoFocus={true}
         >
@@ -168,7 +172,10 @@ class AddNodeModal extends Component {
             </Form.Row>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="outline-secondary" onClick={this.handleClose}>
+            <Button
+              variant="outline-secondary"
+              onClick={this.props.handleClose}
+            >
               Luk
             </Button>
             <Button variant="secondary" onClick={this.createNewNode}>
