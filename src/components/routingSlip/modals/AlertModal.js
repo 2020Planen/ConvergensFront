@@ -1,22 +1,21 @@
 import React, { Component } from "react";
-import "./showNodeData.css";
+import "./popupStyle.css";
+
+import { Alert } from "react-bootstrap";
 
 class AlertModal extends Component {
   render() {
     if (this.props.node.title !== undefined) {
       return (
         <div className="popup_alert">
-          <div className="inside_popup_alert">
-            <h5>PopUp: </h5>
-            <button className="close" onClick={this.props.closePopup}>
-              &times;
-            </button>
+          <Alert variant="danger" onClose={() => this.props.closePopup()} dismissible>
+            <Alert.Heading>Oh snap! You got an error!</Alert.Heading>
             <p>
               Change this and that and try again. Duis mollis, est non commodo
               luctus, nisi erat porttitor ligula, eget lacinia odio sem nec
               elit. Cras mattis consectetur purus sit amet fermentum.
             </p>
-          </div>
+          </Alert>
         </div>
       );
     } else {

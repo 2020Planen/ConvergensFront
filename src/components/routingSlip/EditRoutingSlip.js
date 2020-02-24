@@ -19,7 +19,7 @@ import ShowNodeData from "./modals/showNodeData";
 import RemoveNodeModal from "./modals/RemoveNodeModal";
 import AddNodeModal from "./modals/AddNodeModal";
 import RoutingSlipModal from "./modals/RoutingSlipModal";
-import ShowAlert from "./modals/AlertModal"
+//import ShowAlert from "./modals/AlertModal"
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
 const url = "http://cis-x.convergens.dk:5984/routingslips/";
@@ -313,12 +313,12 @@ class EditRoutingSlip extends Component {
                 closePopup={this.togglePopup.bind(this)}
               />
             ) : null}
-            {this.state.showPopup ? (
+            {/*this.state.showPopup ? (
               <ShowAlert
                 node={this.state.nodeInfo}
                 closePopup={this.togglePopup.bind(this)}
               />
-            ) : null}
+            ) : null*/}
 
             <SortableTree
               treeData={treeData}

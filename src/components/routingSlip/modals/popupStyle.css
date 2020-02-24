@@ -46,8 +46,6 @@
 }
 
 
-
-
 .popup_alert {
   z-index: 1;
   position: absolute;
@@ -55,19 +53,7 @@
   bottom: 1px;
   width: 99%;
   align-self: center;
-  
-  
 
-
-  border: solid #bbb 1px;
-  box-shadow: 0 2px 2px -2px;
-  padding: 0 5px 0 5px;
-  border-radius: 2px;
-  min-width: 230px;
-  flex: 1 0 auto;
-  align-items: center;
-  justify-content: space-between;
-  background-color: white;
-  padding: 15px;
+  transition: 0.25s;
 
 }

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "./showNodeData.css";
+import "./popupStyle.css";
 
 class ShowNodeData extends Component {
     render() {
