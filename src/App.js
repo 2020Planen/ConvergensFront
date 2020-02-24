@@ -12,8 +12,8 @@ import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import Home from "./components/Home";
 import Send from "./components/Send";
 import Reciever from "./components/reciever/Reciever";
-import Condition from "./components/conditions/Condition";
-import CreateRoutingSlip from "./components/createRoutingSlip/CreateRoutingSlip";
+import CreateRoutingSlip from "./components/routingSlip/CreateRoutingSlip";
+import EditRoutingSlip from "./components/routingSlip/EditRoutingSlip";
 import ErrorReciever from "./components/reciever/ErrorReciever";
 import About from "./components/About";
 import Test from "./components/test/Test";
@@ -61,7 +61,7 @@ function Header() {
                 Opret routing slip
               </NavDropdown.Item>
               <NavDropdown.Divider />
-              <NavDropdown.Item href="#condition">
+              <NavDropdown.Item href="#editRoutingSlip">
                 Ændring af routing slips
               </NavDropdown.Item>
             </NavDropdown>
@@ -98,12 +98,11 @@ function App() {
           <Route exact path="/" render={() => <Home />} />
           <Route exact path="/home" render={() => <Home />} />
           <Route exact path="/send" render={() => <Send />} />
-          <Route exact path="/reciever" render={() => <Reciever />} />
-          <Route exact path="/condition" render={() => <Condition />} />
-          <Route exact path="/test" render={() => <Test />} />
-          
           <Route exact path="/createRoutingSlip" render={() => <CreateRoutingSlip />} />
+          <Route exact path="/editRoutingSlip" render={() => <EditRoutingSlip />} />
+          <Route exact path="/reciever" render={() => <Reciever />} />
           <Route exact path="/errorReciever" render={() => <ErrorReciever />} />
+          <Route exact path="/test" render={() => <Test />} />
           <Route exact path="/about" render={() => <About />} />
           <Route component={NoMatch} />
         </Switch>
