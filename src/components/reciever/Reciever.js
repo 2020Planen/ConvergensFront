@@ -9,9 +9,12 @@ import {
   InputGroup,
   Form,
   Button,
-  Badge
+  Badge,
+  Card,
+  Accordion
 } from "react-bootstrap";
 import SendJson from "../../fetch/SendJson";
+import ReactJson from 'react-json-view';
 
 const url =
   "http://cis-x.convergens.dk:5984/finished/_design/by_producerReference/_view/view";
@@ -19,30 +22,33 @@ const url =
 class Main extends Component {
   constructor(props) {
     super(props);
-    //this.eventSource = new EventSource('http://cis-x.convergens.dk:5984/finished/_changes/_design/by_producerReference/_view/view?feed=continuous');
-    this.state = { responseData: [], producerReference: "" };
+    this.state = {
+      responseData: [],
+      producerReference: "",
+      eventData: []
+    };
   }
-/*
+
   componentDidMount() {
     this.startEventSource();
   }
 
   startEventSource() {
     var source = new EventSource(
-      "http://cis-x.convergens.dk:5984/finished/_changes?feed=continuous"
+      "http://cis-x.convergens.dk:5984/mmr/_changes?feed=eventsource&since=now&include_docs=true"
     );
-    source.onerror = function(e) {
+    source.onerror = function (e) {
       console.log("EEERRROOORR");
       console.log(e);
     };
-    
-        source.onmessage = e => {
-            this.updateJson(JSON.parse(e.data));
-            console.log(this.state.inputJson)
-        }
-        
+
+    source.onmessage = e => {
+      this.updateJson(JSON.parse(e.data));
+      console.log(this.state.eventData)
+    }
+
     var results = [];
-    var sourceListener = function(e) {
+    var sourceListener = function (e) {
       var data = JSON.parse(e.data);
       results.push(data);
     };
@@ -51,14 +57,14 @@ class Main extends Component {
   }
 
   updateJson(jsonInput) {
-    var jsonList = this.state.inputJson;
-    const newList = jsonList.push(jsonInput);
+    var jsonList = this.state.eventData;
+    const newList = jsonList.concat(jsonInput);
 
-    this.setState({ inputJson: newList });
-    console.log(this.state.inputJson);
+    this.setState({ eventData: newList });
+    console.log(this.state.eventData.length);
   }
 
-  */
+
 
   getRoutingSlipUrl = producerReference => {
     if (producerReference !== "") {
@@ -67,7 +73,7 @@ class Main extends Component {
   };
 
   getJson = async () => {
-    
+
     const dbUrl = this.getRoutingSlipUrl(this.state.producerReference);
 
     let response = await SendJson.SendJson(dbUrl, "GET");
@@ -113,7 +119,8 @@ class Main extends Component {
   render() {
     return (
       <>
-        <Jumbotron>
+        {/*
+       <Jumbotron>
           <this.header />
           <br />
           <br />
@@ -136,6 +143,26 @@ class Main extends Component {
               </InputGroup.Append>
             </InputGroup>
           </Form.Group>
+      </Jumbotron> */}
+        <Jumbotron>
+          <h3>Antal beskeder modtaget: {this.state.eventData.length}</h3>
+          <Accordion >
+            <Card>
+              <Card.Header>
+                <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                  Data
+                </Accordion.Toggle>
+              </Card.Header>
+              <Accordion.Collapse eventKey="0">
+                <>
+                  {this.state.eventData.length > 0 ? (
+                    this.state.eventData.map(e =>
+                      <Card.Body> <ReactJson src={e.doc} collapsed={true} name={null} enableClipboard={false} displayDataTypes={false} /> </Card.Body>)
+                  ) : null}
+                </>
+              </Accordion.Collapse>
+            </Card>
+          </Accordion>
         </Jumbotron>
 
         {Object.keys(this.state.responseData).map(obj => (
