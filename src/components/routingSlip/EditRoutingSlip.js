@@ -79,12 +79,28 @@ class EditRoutingSlip extends Component {
 
     const dbUrl = url + this.state.routingSlip.id;
     let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString);
-    //console.log(response)
 
     this.setState({
       routingSlip: {
         ...this.state.routingSlip,
         rev: response.rev
+      }
+    });
+    alert(JSON.stringify(response));
+  };
+
+  deletRoutingSlip = async () => {
+    const dbUrl =
+      url + this.state.routingSlip.id + "?rev=" + this.state.routingSlip.rev;
+    let response = await SendJson.SendJson(dbUrl, "DELETE");
+    alert(JSON.stringify(response));
+
+    this.setState({
+      treeData: [],
+      routingSlip: {
+        id: "",
+        rev: "",
+        producerReference: ""
       }
     });
   };
@@ -224,62 +240,69 @@ class EditRoutingSlip extends Component {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
-              <NavDropdown title="Søg i regler" id="basic-nav-dropdown">
-                <Nav.Link variant="outline-secondary" onClick={this.expandAll}>
-                  Udvid Regler
-                </Nav.Link>
-                <Nav.Link
-                  variant="outline-secondary"
-                  onClick={this.collapseAll}
-                >
-                  Kollaps Regler
-                </Nav.Link>
-                <Form inline>
-                  <FormControl
-                    type="text"
-                    placeholder="Søg I Regler"
-                    className="mr-sm-2"
-                    onChange={event =>
-                      this.setState({ searchString: event.target.value })
-                    }
-                  />
-                </Form>
-                <button
-                  type="button"
-                  disabled={!searchFoundCount}
-                  onClick={selectPrevMatch}
-                >
-                  &lt;
-                </button>
-                <button
-                  type="submit"
-                  disabled={!searchFoundCount}
-                  onClick={selectNextMatch}
-                >
-                  &gt;
-                </button>
-                <span>
-                  &nbsp;
-                  {searchFoundCount > 0 ? searchFocusIndex + 1 : 0}
-                  &nbsp;/&nbsp;
-                  {searchFoundCount || 0}
-                </span>
-              </NavDropdown>
               <Nav.Link onClick={this.handleShowSearch}>
                 Find RoutingSlip
               </Nav.Link>
             </Nav>
-            <Form inline>
-              <Button
-                disabled={
-                  this.state.routingSlip.producerReference === "" ? true : false
-                }
-                variant="secondary"
-                onClick={this.sendRoutingSlip}
-              >
-                Gem Routing Slip
-              </Button>
-            </Form>
+            {this.state.routingSlip.producerReference !== "" ? (
+              <Nav>
+                <Form inline>
+                  <NavDropdown title="Rediger routing slip" id="crud-dropdown">
+                    <Nav.Link>Routing Slip Navn</Nav.Link>
+                    <Nav.Link onClick={this.deletRoutingSlip}>
+                      Slet Routing Slip
+                    </Nav.Link>
+                  </NavDropdown>
+                  <NavDropdown title="Søg i regler" id="search-dropdown">
+                    <Nav.Link onClick={this.expandAll}>Udvid Regler</Nav.Link>
+                    <Nav.Link onClick={this.collapseAll}>
+                      Kollaps Regler
+                    </Nav.Link>
+                    
+                      <FormControl
+                        type="text"
+                        placeholder="Søg I Regler"
+                        className="mr-sm-2"
+                        onChange={event =>
+                          this.setState({ searchString: event.target.value })
+                        }
+                      />
+               
+                    <button
+                      type="button"
+                      disabled={!searchFoundCount}
+                      onClick={selectPrevMatch}
+                    >
+                      &lt;
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!searchFoundCount}
+                      onClick={selectNextMatch}
+                    >
+                      &gt;
+                    </button>
+                    <span>
+                      &nbsp;
+                      {searchFoundCount > 0 ? searchFocusIndex + 1 : 0}
+                      &nbsp;/&nbsp;
+                      {searchFoundCount || 0}
+                    </span>
+                  </NavDropdown>
+                  <Button
+                    disabled={
+                      this.state.routingSlip.producerReference === ""
+                        ? true
+                        : false
+                    }
+                    variant="secondary"
+                    onClick={this.sendRoutingSlip}
+                  >
+                    Gem Routing Slip
+                  </Button>
+                </Form>
+              </Nav>
+            ) : null}
           </Navbar.Collapse>
 
           {this.state.showAddNodeModal === true ? (
@@ -296,7 +319,6 @@ class EditRoutingSlip extends Component {
             removeNode={this.removeNode}
             handleCloseRemove={this.handleCloseRemove}
           />
-
         </Navbar>
         <div
           style={{
@@ -425,9 +447,18 @@ class EditRoutingSlip extends Component {
             {this.state.treeData.length === 0 ? (
               this.state.routingSlip.rev === "" ? (
                 <>
-                  <h5>Søg efter en RoutingSlip </h5>
-                  <Button variant="success" onClick={this.handleShowSearch}>
-                    Søg
+                  <h5>Vælg en Routing Slip </h5>
+                  <Button variant="secondary" onClick={this.handleShowSearch}>
+                    Rediger tidligere Routing Slips
+                  </Button>
+                  <br />
+                  <br />
+                  <Button
+                    variant="outline-secondary"
+                    href="#/createRoutingSlip"
+                  >
+                    {" "}
+                    Opret ny Routing Slip
                   </Button>
                 </>
               ) : (
@@ -449,12 +480,12 @@ class EditRoutingSlip extends Component {
           </div>
         </div>
         {this.state.showSearchRoutingSlips ? (
-            <RoutingSlipModal
-              showSearchRoutingSlips={this.state.showSearchRoutingSlips}
-              handleShowSearch={this.handleShowSearch}
-              selectRoutingSlip={this.selectRoutingSlip}
-            />
-          ) : null}
+          <RoutingSlipModal
+            showSearchRoutingSlips={this.state.showSearchRoutingSlips}
+            handleShowSearch={this.handleShowSearch}
+            selectRoutingSlip={this.selectRoutingSlip}
+          />
+        ) : null}
       </>
     );
   }

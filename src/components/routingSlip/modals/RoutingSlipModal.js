@@ -66,6 +66,12 @@ class RoutingSlipModal extends Component {
           >
             Anuller
           </Button>
+          <Button
+            variant="outline-secondary"
+            href="#/createRoutingSlip"
+          >
+            Opret ny routing slip
+          </Button>
         </Modal.Footer>
       </Modal>
     );
