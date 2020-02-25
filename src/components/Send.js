@@ -22,13 +22,14 @@ class Send extends Component {
         SendJson.SendJson(this.state.inputURL + this.state.inputProducer, "POST", this.state.inputJson)
     }
     multiSendJson = async evt => {
-        var jsonArray = [{}]
-        for(var i = 0; i < this.state.amount.valueOf; i++){
-             jsonArray.push(this.state.inputJson)
+        var jsonArray = []
+        for(var i = 0; i < parseInt(this.state.amount); i++){
+            jsonArray.push(this.state.inputJson)
         }
         console.log(jsonArray)
+        console.log(this.state.inputURL+ "bulk/" + this.state.inputProducer)
         console.log("multi send --")
-        SendJson.SendJson(this.state.inputURL,"POST", jsonArray)
+        SendJson.SendJson(this.state.inputURL + "bulk/","POST", jsonArray)
     }
 
     render() {

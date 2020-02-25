@@ -6,8 +6,8 @@ import {
   Jumbotron,
   Tabs,
   Tab,
-  InputGroup,
-  Form,
+  //InputGroup,
+  //Form,
   Button,
   Badge,
   Card,
@@ -35,7 +35,7 @@ class Main extends Component {
 
   startEventSource() {
     var source = new EventSource(
-      "http://cis-x.convergens.dk:5984/mmr/_changes?feed=eventsource&since=now&include_docs=true"
+      "http://cis-x.convergens.dk:5984/finished/_changes?feed=eventsource&since=now&include_docs=true"
     );
     source.onerror = function (e) {
       console.log("EEERRROOORR");
@@ -144,26 +144,29 @@ class Main extends Component {
             </InputGroup>
           </Form.Group>
       </Jumbotron> */}
+          
         <Jumbotron>
           <h3>Antal beskeder modtaget: {this.state.eventData.length}</h3>
-          <Accordion >
-            <Card>
-              <Card.Header>
-                <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                  Data
-                </Accordion.Toggle>
-              </Card.Header>
-              <Accordion.Collapse eventKey="0">
-                <>
-                  {this.state.eventData.length > 0 ? (
-                    this.state.eventData.map(e =>
-                      <Card.Body> <ReactJson src={e.doc} collapsed={true} name={null} enableClipboard={false} displayDataTypes={false} /> </Card.Body>)
-                  ) : null}
-                </>
-              </Accordion.Collapse>
-            </Card>
-          </Accordion>
+
+            {this.state.eventData.length > 0 ? (
+              <Accordion >
+                <Card>
+                  <Card.Header>
+                    <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                      Data
+                         </Accordion.Toggle>
+                  </Card.Header>
+                  <Accordion.Collapse eventKey="0">
+                    <>
+                    {this.state.eventData.map((e, index) =>
+                      <Card.Body key={index}> <ReactJson src={e.doc} collapsed={true} name={null} enableClipboard={false} displayDataTypes={false} /> </Card.Body>)}
+                  </>
+                  </Accordion.Collapse>
+                </Card>
+              </Accordion>) : null}
+
         </Jumbotron>
+          
 
         {Object.keys(this.state.responseData).map(obj => (
           <this.CreateTab key={obj} obj={this.state.responseData[obj]} />
