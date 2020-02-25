@@ -10,6 +10,7 @@ import {
   Form,
   Button,
   FormControl,
+  NavDropdown
 } from "react-bootstrap";
 
 import SendJson from "../../fetch/SendJson";
@@ -17,69 +18,44 @@ import TreeJsonParser from "./dataParsing/TreeJsonParser";
 import ShowNodeData from "./modals/showNodeData";
 import RemoveNodeModal from "./modals/RemoveNodeModal";
 import AddNodeModal from "./modals/AddNodeModal";
+import RoutingSlipModal from "./modals/RoutingSlipModal";
+//import ShowAlert from "./modals/AlertModal"
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
 const url = "http://cis-x.convergens.dk:5984/routingslips/";
 
-class Test extends Component {
+class EditRoutingSlip extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      showPopup: false,
-
       nodeInfo: {},
 
-      producerReference: "",
+      routingSlip: {
+        id: "",
+        rev: "",
+        producerReference: ""
+      },
 
+      alert: {
+        heading: "",
+        text: "",
+        style: "danger",
+        show: true
+      },
+
+      showPopup: false,
       showAddNodeModal: false,
-   
-
       showRemoveNodeModal: false,
+      showSearchRoutingSlips: false,
+
       nodeToDeleteParentKey: null,
 
       searchString: "",
       searchFocusIndex: 0,
       searchFoundCount: null,
 
-      treeData: [
-        {
-          title: "cvr-beriger",
-          subtitle: "data.cvr - lig med - convergens",
-          conditions: [
-            { field: "data.cvr", action: "lig med", value: "convergens" }
-          ],
-          topic: "cvr-beriger",
-          isDirectory: true,
-          children: [
-            {
-              title: "kommune-beriger",
-              subtitle: "data.address.zip - lig med - 4400",
-              conditions: [
-                { field: "data.address.zip", action: "lig med", value: "4400" }
-              ],
-              topic: "kommune-beriger",
-              isDirectory: true,
-              children: [
-                {
-                  title: "test-beriger",
-                  subtitle: "data.filstørrelse - større end - 2000",
-                  conditions: [
-                    {
-                      field: "data.filstørrelse",
-                      action: "større end",
-                      value: "2000"
-                    }
-                  ],
-                  topic: "test-beriger",
-                  children: [],
-                  isDirectory: true
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      treeData: []
     };
 
     this.updateTreeData = this.updateTreeData.bind(this);
@@ -90,21 +66,30 @@ class Test extends Component {
     this.mapTree = TreeUtils.map.bind(this);
   }
 
-  generateRoutingSlip = async () => {
+  sendRoutingSlip = async () => {
     var oldJson = {};
-    oldJson = JSON.parse(JSON.stringify(this.state.treeData)); //dårlig clone løsning
-    var newJson = TreeJsonParser.editConditionSlip(0, oldJson);
+    oldJson = JSON.parse(JSON.stringify(this.state.treeData));
+    var newJson = TreeJsonParser.treeToRoutingSlip(0, oldJson);
 
-    const routingSlipString = `{"producerReference": "${
-      this.state.producerReference
+    const routingSlipString = `{ "_rev": "${
+      this.state.routingSlip.rev
+    }", "producerReference": "${
+      this.state.routingSlip.producerReference
     }", "routingSlip": {"routes": ${JSON.stringify(newJson)}}}`;
 
-    const uuidv4 = require("uuid/v4");
-    const dbUrl = url + uuidv4();
-
+    const dbUrl = url + this.state.routingSlip.id;
     let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString);
-    alert(JSON.stringify(response));
+    //console.log(response)
+
+    this.setState({
+      routingSlip: {
+        ...this.state.routingSlip,
+        rev: response.rev
+      }
+    });
   };
+
+  findRoutingSlip = async () => {};
 
   updateTreeData(treeData) {
     this.setState({ treeData });
@@ -134,6 +119,22 @@ class Test extends Component {
       nodeToDeleteParentKey: parentKey
     });
   };
+  handleClose = () => this.setState({ showAddNodeModal: false });
+  handleShow = ({ parentKey }) => {
+    this.setState({
+      newNode: {
+        ...this.state.newNode,
+        parentKey: parentKey
+      }
+    });
+    this.setState({ showAddNodeModal: true });
+  };
+
+  handleShowSearch = () => {
+    this.setState({
+      showSearchRoutingSlips: !this.state.showSearchRoutingSlips
+    });
+  };
 
   removeNode = () => {
     this.setState({
@@ -146,19 +147,7 @@ class Test extends Component {
     this.setState({ nodeToDeleteParentKey: null, showRemoveNodeModal: false });
   };
 
-  handleClose = () => this.setState({ showAddNodeModal: false });
-  handleShow = ({ parentKey }) => {
-    this.setState({
-      newNode: {
-        ...this.state.newNode,
-        parentKey: parentKey
-      }
-    });
-    this.setState({ showAddNodeModal: true });
-  };
-
-  createNewNode = (newNode) => {
-
+  createNewNode = newNode => {
     this.setState({
       treeData: this.addNodeUnderParent({
         treeData: this.state.treeData,
@@ -186,6 +175,17 @@ class Test extends Component {
     });
   };
 
+  selectRoutingSlip = routingSlip => {
+    this.setState({
+      routingSlip: {
+        id: routingSlip.id,
+        rev: routingSlip.rev,
+        producerReference: routingSlip.producerReference
+      },
+      treeData: routingSlip.treeData
+    });
+  };
+
   render() {
     const {
       treeData,
@@ -193,8 +193,7 @@ class Test extends Component {
       searchFocusIndex,
       searchFoundCount
     } = this.state;
- 
-  
+
     const selectPrevMatch = () =>
       this.setState({
         searchFocusIndex:
@@ -214,86 +213,96 @@ class Test extends Component {
     return (
       <>
         <Navbar collapseOnSelect expand="lg">
-          <Navbar.Brand>Opret Routing Slip</Navbar.Brand>
+          {this.state.routingSlip.producerReference === "" ? (
+            <Navbar.Brand>Rediger en Routing Slip </Navbar.Brand>
+          ) : (
+            <Navbar.Brand>
+              Redigering af RoutingSlip
+              <strong> {this.state.routingSlip.producerReference} </strong>
+            </Navbar.Brand>
+          )}
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
-              <Button variant="outline-secondary" onClick={this.expandAll}>
-                Udvid Regler
-              </Button>
-              <Button variant="outline-secondary" onClick={this.collapseAll}>
-                Kollaps Regler
-              </Button>
-              <Form inline>
-                <FormControl
-                  type="text"
-                  placeholder="Søg I Regler"
-                  className="mr-sm-2"
-                  onChange={event =>
-                    this.setState({ searchString: event.target.value })
-                  }
-                />
-              </Form>
-              <button
-                type="button"
-                disabled={!searchFoundCount}
-                onClick={selectPrevMatch}
-              >
-                &lt;
-              </button>
-              <button
-                type="submit"
-                disabled={!searchFoundCount}
-                onClick={selectNextMatch}
-              >
-                &gt;
-              </button>
-              <span>
-                &nbsp;
-                {searchFoundCount > 0 ? searchFocusIndex + 1 : 0}
-                &nbsp;/&nbsp;
-                {searchFoundCount || 0}
-              </span>
+              <NavDropdown title="Søg i regler" id="basic-nav-dropdown">
+                <Nav.Link variant="outline-secondary" onClick={this.expandAll}>
+                  Udvid Regler
+                </Nav.Link>
+                <Nav.Link
+                  variant="outline-secondary"
+                  onClick={this.collapseAll}
+                >
+                  Kollaps Regler
+                </Nav.Link>
+                <Form inline>
+                  <FormControl
+                    type="text"
+                    placeholder="Søg I Regler"
+                    className="mr-sm-2"
+                    onChange={event =>
+                      this.setState({ searchString: event.target.value })
+                    }
+                  />
+                </Form>
+                <button
+                  type="button"
+                  disabled={!searchFoundCount}
+                  onClick={selectPrevMatch}
+                >
+                  &lt;
+                </button>
+                <button
+                  type="submit"
+                  disabled={!searchFoundCount}
+                  onClick={selectNextMatch}
+                >
+                  &gt;
+                </button>
+                <span>
+                  &nbsp;
+                  {searchFoundCount > 0 ? searchFocusIndex + 1 : 0}
+                  &nbsp;/&nbsp;
+                  {searchFoundCount || 0}
+                </span>
+              </NavDropdown>
+              <Nav.Link onClick={this.handleShowSearch}>
+                Find RoutingSlip
+              </Nav.Link>
             </Nav>
             <Form inline>
-              <Form.Control
-                id="producerReference"
-                required
-                placeholder="producer reference navn"
-                onChange={event => {
-                  this.setState({ producerReference: event.target.value });
-                }}
-              />
               <Button
-                disabled={this.state.producerReference === "" ? true : false}
-                variant="outline-secondary"
-                onClick={this.generateRoutingSlip}
+                disabled={
+                  this.state.routingSlip.producerReference === "" ? true : false
+                }
+                variant="secondary"
+                onClick={this.sendRoutingSlip}
               >
-                Tilføj Routing Slip
+                Gem Routing Slip
               </Button>
             </Form>
           </Navbar.Collapse>
 
-          {this.state.showAddNodeModal === true ?<AddNodeModal
-            showAddNodeModal={this.state.showAddNodeModal}
-            handleClose={this.handleClose}
-            parentKey={this.state.newNode.parentKey}
-            createNewNode={this.createNewNode}
-          /> : null }
+          {this.state.showAddNodeModal === true ? (
+            <AddNodeModal
+              showAddNodeModal={this.state.showAddNodeModal}
+              handleClose={this.handleClose}
+              parentKey={this.state.newNode.parentKey}
+              createNewNode={this.createNewNode}
+            />
+          ) : null}
 
           <RemoveNodeModal
             showRemoveNodeModal={this.state.showRemoveNodeModal}
             removeNode={this.removeNode}
             handleCloseRemove={this.handleCloseRemove}
           />
-          
-        </Navbar>
 
+        </Navbar>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            height: "100vh",
+            height: "88vh",
             backgroundColor: "#ededed"
           }}
         >
@@ -304,6 +313,12 @@ class Test extends Component {
                 closePopup={this.togglePopup.bind(this)}
               />
             ) : null}
+            {/*this.state.showPopup ? (
+              <ShowAlert
+                node={this.state.nodeInfo}
+                closePopup={this.togglePopup.bind(this)}
+              />
+            ) : null*/}
 
             <SortableTree
               treeData={treeData}
@@ -408,25 +423,41 @@ class Test extends Component {
               })}
             />
             {this.state.treeData.length === 0 ? (
-              <>
-                <h5>Du har ingen regler </h5>
-                <Button
-                  variant="success"
-                  onClick={() =>
-                    this.handleShow({
-                      parentKey: null
-                    })
-                  }
-                >
-                  Opret en regel
-                </Button>
-              </>
+              this.state.routingSlip.rev === "" ? (
+                <>
+                  <h5>Søg efter en RoutingSlip </h5>
+                  <Button variant="success" onClick={this.handleShowSearch}>
+                    Søg
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <h5>Du har ingen regler </h5>
+                  <Button
+                    variant="success"
+                    onClick={() =>
+                      this.handleShow({
+                        parentKey: null
+                      })
+                    }
+                  >
+                    Opret en regel
+                  </Button>
+                </>
+              )
             ) : null}
           </div>
         </div>
+        {this.state.showSearchRoutingSlips ? (
+            <RoutingSlipModal
+              showSearchRoutingSlips={this.state.showSearchRoutingSlips}
+              handleShowSearch={this.handleShowSearch}
+              selectRoutingSlip={this.selectRoutingSlip}
+            />
+          ) : null}
       </>
     );
   }
 }
 
-export default Test;
+export default EditRoutingSlip;

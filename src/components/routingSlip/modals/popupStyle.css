@@ -44,3 +44,16 @@
   max-height: 30%;
   overflow: auto;
 }
+
+
+.popup_alert {
+  z-index: 1;
+  position: absolute;
+  float: bottom;
+  bottom: 1px;
+  width: 99%;
+  align-self: center;
+
+  transition: 0.25s;
+
+}

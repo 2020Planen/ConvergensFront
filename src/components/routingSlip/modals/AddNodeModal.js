@@ -81,6 +81,9 @@ class AddNodeModal extends Component {
     });
   };
 
+  componentDidMount() {
+    console.log("hej")
+  }
 
   render() {
     return (

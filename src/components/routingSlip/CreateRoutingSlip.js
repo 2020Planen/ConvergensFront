@@ -5,7 +5,7 @@ import * as TreeUtils from "./tree-data-utils";
 import "react-sortable-tree/style.css";
 
 import {
-  Navbar,
+  Navbar, 
   Nav,
   Form,
   Button,
@@ -21,7 +21,7 @@ import AddNodeModal from "./modals/AddNodeModal";
 const getNodeKey = ({ treeIndex }) => treeIndex;
 const url = "http://cis-x.convergens.dk:5984/routingslips/";
 
-class Test extends Component {
+class CreateRoutingSlip extends Component {
   constructor(props) {
     super(props);
 
@@ -93,7 +93,7 @@ class Test extends Component {
   generateRoutingSlip = async () => {
     var oldJson = {};
     oldJson = JSON.parse(JSON.stringify(this.state.treeData)); //dårlig clone løsning
-    var newJson = TreeJsonParser.editConditionSlip(0, oldJson);
+    var newJson = TreeJsonParser.treeToRoutingSlip(0, oldJson);
 
     const routingSlipString = `{"producerReference": "${
       this.state.producerReference
@@ -429,4 +429,4 @@ class Test extends Component {
   }
 }
 
-export default Test;
+export default CreateRoutingSlip;
