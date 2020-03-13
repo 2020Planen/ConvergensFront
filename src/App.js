@@ -216,8 +216,10 @@ class App extends Component {
                   path="/errorReciever"
                   render={() => <ErrorReciever />}
                 />
+                {/*
                 <Route exact path="/test" render={() => <Test />} />
                 <Route exact path="/about" render={() => <About />} />
+                */}
                 <Route component={NoMatch} />
               </Switch>
             </Router>
