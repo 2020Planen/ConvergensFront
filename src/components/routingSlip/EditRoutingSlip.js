@@ -228,7 +228,7 @@ class EditRoutingSlip extends Component {
 
     return (
       <>
-        <Navbar collapseOnSelect expand="lg">
+        <Navbar collapseOnSelect expand="md">
           {this.state.routingSlip.producerReference === "" ? (
             <Navbar.Brand>Rediger en Routing Slip </Navbar.Brand>
           ) : (

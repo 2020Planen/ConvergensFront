@@ -4,7 +4,7 @@ import SendJson from "../fetch/SendJson";
 
 
 var example = `{"metaData":{"address":"Nordre fasanvej 255","name":"convergens","city":"nørrebro","phone":"28282828","zip":2200},"data":{"yikes":"yikes","tester":"tester"}}`
-var url = "http://localhost:8080/receiver/"
+var url = "http://localhost:8080/receiver/" 
 
 class Send extends Component {
     constructor(props) {

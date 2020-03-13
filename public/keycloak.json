@@ -1,0 +1,8 @@
+{
+  "realm": "odense",
+  "auth-server-url": "http://cis-x.convergens.dk:8089/auth/",
+  "ssl-required": "external",
+  "resource": "react-test-app",
+  "public-client": true,
+  "confidential-port": 0
+}
