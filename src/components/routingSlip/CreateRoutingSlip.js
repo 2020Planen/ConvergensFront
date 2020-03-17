@@ -19,7 +19,7 @@ import RemoveNodeModal from "./modals/RemoveNodeModal";
 import AddNodeModal from "./modals/AddNodeModal";
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
-const url = "http://cis-x.convergens.dk:5984/routingslips/";
+const url = process.env.REACT_APP_COUCH_URL +"/routingslips/";
 
 class CreateRoutingSlip extends Component {
   constructor(props) {

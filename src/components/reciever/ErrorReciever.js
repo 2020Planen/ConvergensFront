@@ -13,7 +13,7 @@ import {
 import SendJson from "../../fetch/SendJson";
 
 const url =
-  "http://cis-x.convergens.dk:5984/failed/_design/by_producerReference/_view/view";
+process.env.REACT_APP_COUCH_URL + "/failed/_design/by_producerReference/_view/view";
 
 class RecieverForm extends Component {
   constructor(props) {

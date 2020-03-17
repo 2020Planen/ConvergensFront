@@ -6,10 +6,27 @@ function handleHttpErrors(res) {
 }
 
 class SendJson {
+  upload = (url, data, file) => {
+    var formData = new FormData();
 
+    formData.append("data", data);
+    formData.append("uploadedFile", file);
 
-    // url = fuld url opt = string (GET/POST) data = json som string
-    SendJson = (url, opt, data) => {
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+        Accept: "application/json"
+      },
+      body: formData
+    })
+      .then(response => response.json())
+      .catch(error => console.error("Error:", error))
+      .then(response => console.log("Success:", JSON.stringify(response)));
+  };
+
+  // url = fuld url opt = string (GET/POST) data = json som string
+  SendJson = (url, opt, data) => {
     const options = this.makeOptions(opt, data);
     return fetch(url, options)
       .then(handleHttpErrors)
@@ -17,7 +34,6 @@ class SendJson {
         return res;
       });
   };
-
 
   makeOptions(method, body) {
     var opts = {
@@ -29,7 +45,7 @@ class SendJson {
     };
     if (body) {
       //opts.body = JSON.stringify(body);
-      opts.body = body
+      opts.body = body;
     }
     return opts;
   }

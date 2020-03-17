@@ -22,7 +22,7 @@ import RoutingSlipModal from "./modals/RoutingSlipModal";
 //import ShowAlert from "./modals/AlertModal"
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
-const url = "http://cis-x.convergens.dk:5984/routingslips/";
+const url = process.env.REACT_APP_COUCH_URL + "/routingslips/";
 
 class EditRoutingSlip extends Component {
   constructor(props) {

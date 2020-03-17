@@ -5,8 +5,7 @@ import { Button, Modal, Spinner, ListGroup } from "react-bootstrap";
 import SendJson from "../../../fetch/SendJson";
 import DataParser from "../dataParsing/TreeJsonParser"
 
-const URL =
-  "http://cis-x.convergens.dk:5984/routingslips/";
+const URL =process.env.REACT_APP_COUCH_URL +"/routingslips/";
 
 class RoutingSlipModal extends Component {
   constructor(props) {

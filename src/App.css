@@ -3,6 +3,11 @@
   background-color: #0151f0;
 }
 
+.NavDropdown-test {
+  color: red;
+  background-color: green;
+  text-shadow: hotpink;
+}
 
 .App-header {
   background-color: #282c34;

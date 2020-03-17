@@ -14,10 +14,12 @@ import Reciever from "./components/reciever/Reciever";
 import CreateRoutingSlip from "./components/routingSlip/CreateRoutingSlip";
 import EditRoutingSlip from "./components/routingSlip/EditRoutingSlip";
 import ErrorReciever from "./components/reciever/ErrorReciever";
-import About from "./components/About";
-import Test from "./components/test/Test";
+//import About from "./components/About";
+//import Test from "./components/test/Test";
 import Keycloak from "keycloak-js";
 import JWT from "jwt-decode";
+
+require('dotenv').config()
 
 function NoMatch() {
   return (
@@ -119,7 +121,7 @@ function Header({ keycloak }) {
                   </Nav.Link>
                 ) : null}
 
-                <NavDropdown title={userInfo.username} id="user-nav-dropdown">
+                <NavDropdown drop="left" title={userInfo.username} id="user-nav-dropdown">
                   {userInfo.email !== undefined ? (
                     <>
                       <NavDropdown.Item>{userInfo.email}</NavDropdown.Item>

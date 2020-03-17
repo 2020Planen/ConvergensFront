@@ -35,7 +35,7 @@ class Main extends Component {
 
   startEventSource() {
     var source = new EventSource(
-      "http://cis-x.convergens.dk:5984/finished/_changes?feed=eventsource&since=now&include_docs=true"
+      process.env.REACT_APP_COUCH_URL + "/finished/_changes?feed=eventsource&since=now&include_docs=true"
     );
     source.onerror = function (e) {
       console.log("EEERRROOORR");
