@@ -6,6 +6,7 @@ function handleHttpErrors(res) {
 }
 
 class SendJson {
+  /*
   upload = (url, data, file) => {
     var formData = new FormData();
 
@@ -24,6 +25,42 @@ class SendJson {
       .catch(error => console.error("Error:", error))
       .then(response => console.log("Success:", JSON.stringify(response)));
   };
+  */
+ SendWithTokenIdRev = (gateUrl, url, opt, data) => {
+  const options = this.makeTokenOptions(opt, data, url);
+  return fetch(gateUrl, options)
+    .then(handleHttpErrors)
+    .then(res => {
+      return res;
+    });
+};
+
+
+  SendWithToken = (url, opt, data) => {
+    const options = this.makeTokenOptions(opt, data, url);
+    return fetch(process.env.REACT_APP_GATEWAY_URL, options)
+      .then(handleHttpErrors)
+      .then(res => {
+        return res;
+      });
+  };
+  
+  makeTokenOptions(method, body, url) {
+    var opts = {
+      method: method,
+      headers: {
+        "Content-type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("keycloak-token"),
+        "target-base-uri": url,
+        Accept: "application/json"
+      }
+    };
+    if (body) {
+      //opts.body = JSON.stringify(body);
+      opts.body = body;
+    }
+    return opts;
+  }
 
   // url = fuld url opt = string (GET/POST) data = json som string
   SendJson = (url, opt, data) => {
@@ -34,6 +71,7 @@ class SendJson {
         return res;
       });
   };
+
 
   makeOptions(method, body) {
     var opts = {

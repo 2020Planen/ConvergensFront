@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   Navbar,
@@ -15,11 +15,11 @@ import CreateRoutingSlip from "./components/routingSlip/CreateRoutingSlip";
 import EditRoutingSlip from "./components/routingSlip/EditRoutingSlip";
 import ErrorReciever from "./components/reciever/ErrorReciever";
 //import About from "./components/About";
-//import Test from "./components/test/Test";
+import Test from "./components/test/Test";
 import Keycloak from "keycloak-js";
 import JWT from "jwt-decode";
 
-require('dotenv').config()
+require("dotenv").config();
 
 function NoMatch() {
   return (
@@ -37,13 +37,15 @@ function Header({ keycloak }) {
     email: "",
     email_verified: false
   });
-  keycloak.loadUserInfo().then(userInfo => {
-    setInfo({
-      username: userInfo.preferred_username,
-      email: userInfo.email,
-      email_verified: userInfo.email_verified
+  useEffect(() => {
+    keycloak.loadUserInfo().then(userInfo => {
+      setInfo({
+        username: userInfo.preferred_username,
+        email: userInfo.email,
+        email_verified: userInfo.email_verified
+      });
     });
-  });
+  }, []);
 
   return (
     <>
@@ -111,17 +113,18 @@ function Header({ keycloak }) {
                   localStorage.getItem("keycloak-token")
                 ).realm_access.roles.includes("admin") ? (
                   <Nav.Link
-                    onClick={() =>
-                      console.log(
-                        JWT(localStorage.getItem("keycloak-token")).iss
-                      )
-                    }
+                    
+                  href="#test"
                   >
                     Test
                   </Nav.Link>
                 ) : null}
 
-                <NavDropdown drop="left" title={userInfo.username} id="user-nav-dropdown">
+                <NavDropdown
+                  drop="left"
+                  title={userInfo.username}
+                  id="user-nav-dropdown"
+                >
                   {userInfo.email !== undefined ? (
                     <>
                       <NavDropdown.Item>{userInfo.email}</NavDropdown.Item>
@@ -202,6 +205,7 @@ class App extends Component {
                 <Route exact path="/" render={() => <Home />} />
                 <Route exact path="/home" render={() => <Home />} />
                 <Route exact path="/send" render={() => <Send />} />
+                <Route exact path="/test" render={() => <Test />} />
                 <Route
                   exact
                   path="/createRoutingSlip"

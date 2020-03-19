@@ -12,8 +12,7 @@ import {
 } from "react-bootstrap";
 import SendJson from "../../fetch/SendJson";
 
-const url =
-process.env.REACT_APP_COUCH_URL + "/failed/_design/by_producerReference/_view/view";
+const url =process.env.REACT_APP_COUCH_URL + "failed/_design/by_producerReference/_view/view";
 
 class RecieverForm extends Component {
   constructor(props) {
@@ -28,9 +27,9 @@ class RecieverForm extends Component {
   };
 
   getJson = async evt => {
-    const dbUrl = this.getRoutingSlipUrl(this.state.producerReference);
-
-    let response = await SendJson.SendJson(dbUrl, "GET");
+    //const dbUrl = this.getRoutingSlipUrl(this.state.producerReference);
+    const dbUrl = process.env.REACT_APP_COUCH_TARGET + "/getFailed/realm"
+    let response = await SendJson.SendWithToken(dbUrl, "GET");
     this.setState({ responseData: response.rows });
   };
 
@@ -76,7 +75,10 @@ class RecieverForm extends Component {
           <br />
           <br />
           <Form.Group>
-            <Form.Label>Lyt efter en specifik producer reference, eller lad feltet stå tomt for at lytte på alt</Form.Label>
+            <Form.Label>
+              Lyt efter en specifik producer reference, eller lad feltet stå
+              tomt for at lytte på alt
+            </Form.Label>
             <InputGroup>
               <Form.Control
                 id="producerReference"

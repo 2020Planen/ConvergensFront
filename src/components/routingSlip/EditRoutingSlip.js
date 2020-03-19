@@ -22,7 +22,6 @@ import RoutingSlipModal from "./modals/RoutingSlipModal";
 //import ShowAlert from "./modals/AlertModal"
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
-const url = process.env.REACT_APP_COUCH_URL + "/routingslips/";
 
 class EditRoutingSlip extends Component {
   constructor(props) {
@@ -71,14 +70,28 @@ class EditRoutingSlip extends Component {
     oldJson = JSON.parse(JSON.stringify(this.state.treeData));
     var newJson = TreeJsonParser.treeToRoutingSlip(0, oldJson);
 
-    const routingSlipString = `{ "_rev": "${
-      this.state.routingSlip.rev
-    }", "producerReference": "${
+    const routingSlipString = `{ "producerReference": "${
       this.state.routingSlip.producerReference
     }", "routingSlip": {"routes": ${JSON.stringify(newJson)}}}`;
 
-    const dbUrl = url + this.state.routingSlip.id;
-    let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString);
+    const dbUrl =
+      process.env.REACT_APP_COUCH_TARGET +
+      "/change/" +
+      this.state.routingSlip.id +
+      "/" +
+      this.state.routingSlip.rev;
+    const gateUrl =
+      process.env.REACT_APP_GATEWAY_URL +
+      "/" +
+      this.state.routingSlip.id +
+      "/" +
+      this.state.routingSlip.rev;
+    let response = await SendJson.SendWithTokenIdRev(
+      gateUrl,
+      dbUrl,
+      "PUT",
+      routingSlipString
+    );
 
     this.setState({
       routingSlip: {
@@ -91,8 +104,18 @@ class EditRoutingSlip extends Component {
 
   deletRoutingSlip = async () => {
     const dbUrl =
-      url + this.state.routingSlip.id + "?rev=" + this.state.routingSlip.rev;
-    let response = await SendJson.SendJson(dbUrl, "DELETE");
+      process.env.REACT_APP_COUCH_TARGET +
+      "/delete/" +
+      this.state.routingSlip.id +
+      "/" +
+      this.state.routingSlip.rev;
+    const gateUrl =
+      process.env.REACT_APP_GATEWAY_URL +
+      "/" +
+      this.state.routingSlip.id +
+      "/" +
+      this.state.routingSlip.rev;
+    let response = await SendJson.SendWithTokenIdRev(gateUrl, dbUrl, "DELETE");
     alert(JSON.stringify(response));
 
     this.setState({
@@ -258,16 +281,16 @@ class EditRoutingSlip extends Component {
                     <Nav.Link onClick={this.collapseAll}>
                       Kollaps Regler
                     </Nav.Link>
-                    
-                      <FormControl
-                        type="text"
-                        placeholder="Søg I Regler"
-                        className="mr-sm-2"
-                        onChange={event =>
-                          this.setState({ searchString: event.target.value })
-                        }
-                      />
-               
+
+                    <FormControl
+                      type="text"
+                      placeholder="Søg I Regler"
+                      className="mr-sm-2"
+                      onChange={event =>
+                        this.setState({ searchString: event.target.value })
+                      }
+                    />
+
                     <button
                       type="button"
                       disabled={!searchFoundCount}

@@ -5,7 +5,7 @@ import { Button, Modal, Spinner, ListGroup } from "react-bootstrap";
 import SendJson from "../../../fetch/SendJson";
 import DataParser from "../dataParsing/TreeJsonParser"
 
-const URL =process.env.REACT_APP_COUCH_URL +"/routingslips/";
+//const URL =process.env.REACT_APP_COUCH_URL +"/routingslips/";
 
 class RoutingSlipModal extends Component {
   constructor(props) {
@@ -16,8 +16,9 @@ class RoutingSlipModal extends Component {
   }
 
   componentDidMount = async () => {
-    const  routingSlipUrl = URL + "_design/RoutingSlip/_view/by_pr_get_docs"
-    let routingSlipList = await SendJson.SendJson(routingSlipUrl, "GET");
+    //const  routingSlipUrl = URL + "_design/RoutingSlip/_view/by_pr_get_docs"
+    const  routingSlipUrl = process.env.REACT_APP_COUCH_TARGET + "/getAllRoutes/realm";
+    let routingSlipList = await SendJson.SendWithToken(routingSlipUrl, "GET");
     this.setState({ routingSlipList: routingSlipList.rows});
   };
 
@@ -52,7 +53,7 @@ class RoutingSlipModal extends Component {
           {this.state.routingSlipList.length > 0 ? (
             <ListGroup variant="flush">
                 {this.state.routingSlipList.map((routingSlip) => (
-              <ListGroup.Item key={routingSlip.id} action onClick={() => this.selectRoutingSlip(routingSlip.value)}>{routingSlip.key}</ListGroup.Item>
+              <ListGroup.Item key={routingSlip.id} action onClick={() => this.selectRoutingSlip(routingSlip.value)}>{routingSlip.value.producerReference}</ListGroup.Item>
                 ))}
               </ListGroup>
           ) : null

@@ -4,13 +4,7 @@ import SortableTree, { toggleExpandedForAll } from "react-sortable-tree";
 import * as TreeUtils from "./tree-data-utils";
 import "react-sortable-tree/style.css";
 
-import {
-  Navbar, 
-  Nav,
-  Form,
-  Button,
-  FormControl,
-} from "react-bootstrap";
+import { Navbar, Nav, Form, Button, FormControl } from "react-bootstrap";
 
 import SendJson from "../../fetch/SendJson";
 import TreeJsonParser from "./dataParsing/TreeJsonParser";
@@ -19,7 +13,6 @@ import RemoveNodeModal from "./modals/RemoveNodeModal";
 import AddNodeModal from "./modals/AddNodeModal";
 
 const getNodeKey = ({ treeIndex }) => treeIndex;
-const url = process.env.REACT_APP_COUCH_URL +"/routingslips/";
 
 class CreateRoutingSlip extends Component {
   constructor(props) {
@@ -33,7 +26,6 @@ class CreateRoutingSlip extends Component {
       producerReference: "",
 
       showAddNodeModal: false,
-   
 
       showRemoveNodeModal: false,
       nodeToDeleteParentKey: null,
@@ -99,11 +91,11 @@ class CreateRoutingSlip extends Component {
       this.state.producerReference
     }", "routingSlip": {"routes": ${JSON.stringify(newJson)}}}`;
 
-    const uuidv4 = require("uuid/v4");
-    const dbUrl = url + uuidv4();
 
-    let response = await SendJson.SendJson(dbUrl, "PUT", routingSlipString);
+    const url = process.env.REACT_APP_COUCH_TARGET + "/add/realm";
+    let response = await SendJson.SendWithToken(url, "POST", routingSlipString);
     alert(JSON.stringify(response));
+
   };
 
   updateTreeData(treeData) {
@@ -157,8 +149,7 @@ class CreateRoutingSlip extends Component {
     this.setState({ showAddNodeModal: true });
   };
 
-  createNewNode = (newNode) => {
-
+  createNewNode = newNode => {
     this.setState({
       treeData: this.addNodeUnderParent({
         treeData: this.state.treeData,
@@ -193,8 +184,7 @@ class CreateRoutingSlip extends Component {
       searchFocusIndex,
       searchFoundCount
     } = this.state;
- 
-  
+
     const selectPrevMatch = () =>
       this.setState({
         searchFocusIndex:
@@ -274,19 +264,20 @@ class CreateRoutingSlip extends Component {
             </Form>
           </Navbar.Collapse>
 
-          {this.state.showAddNodeModal === true ?<AddNodeModal
-            showAddNodeModal={this.state.showAddNodeModal}
-            handleClose={this.handleClose}
-            parentKey={this.state.newNode.parentKey}
-            createNewNode={this.createNewNode}
-          /> : null }
+          {this.state.showAddNodeModal === true ? (
+            <AddNodeModal
+              showAddNodeModal={this.state.showAddNodeModal}
+              handleClose={this.handleClose}
+              parentKey={this.state.newNode.parentKey}
+              createNewNode={this.createNewNode}
+            />
+          ) : null}
 
           <RemoveNodeModal
             showRemoveNodeModal={this.state.showRemoveNodeModal}
             removeNode={this.removeNode}
             handleCloseRemove={this.handleCloseRemove}
           />
-          
         </Navbar>
 
         <div
