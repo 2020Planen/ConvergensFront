@@ -10,9 +10,9 @@ import {
 } from "react-bootstrap";
 import SendJson from "../fetch/SendJson";
 
-var example = `{"metaData":{"address":"Nordre fasanvej 255","name":"convergens","city":"nørrebro","phone":"28282828","zip":2200},"data":{"yikes":"yikes","tester":"tester"}}`;
-var url = process.env.REACT_APP_REST_URL + "/receiver/";
-
+var example = `{"data": {"test1": "tesæt","test2": "testø","test3": "testå"},"metaData": {"name": "Elvira Powell","address": "Nørrebrogade 155","zip": 2200}}`;
+//const url = process.env.REACT_APP_REST_URL + "/receiver/";
+const url = "http://10.1.80.194:31005/receiver/";
 class Send extends Component {
   constructor(props) {
     super(props);
@@ -21,32 +21,41 @@ class Send extends Component {
       inputURL: url,
       inputProducer: "testParam",
       amount: "1",
-      file: null
+      files: []
     };
   }
   onChange = evt => {
     this.setState({ [evt.target.id]: evt.target.value });
   };
 
+  onFileChange = evt => {
+    var files = [];
+    for (var i = 0; i < evt.target.files.length; i++) {
+      files.push(evt.target.files[i]);
+    }
+    this.setState({ files: files });
+  };
+
   sendJson = async evt => {
-      console.log(url)
-    //console.log(this.state);
-    //console.log("single send --");
-    SendJson.SendJson(
-      this.state.inputURL + this.state.inputProducer,
-      "POST",
-      this.state.inputJson
+    SendJson.uploadFiles(
+      this.state.inputURL + "message/" + this.state.inputProducer,
+      this.state.inputJson,
+      this.state.files
     );
   };
   multiSendJson = async evt => {
     var jsonArray = [];
     for (var i = 0; i < parseInt(this.state.amount); i++) {
-      jsonArray.push(this.state.inputJson);
+      jsonArray.push(JSON.parse(this.state.inputJson));
     }
-    console.log(jsonArray);
-    console.log(this.state.inputURL + "bulk/" + this.state.inputProducer);
-    console.log("multi send --");
-    SendJson.SendJson(this.state.inputURL + "bulk/", "POST", jsonArray);
+    //const body = JSON.stringify(jsonArray)
+    for (var i = 0; i < this.state.amount; i++) {
+      SendJson.uploadFiles(
+        this.state.inputURL + "message/" + this.state.inputProducer,
+        this.state.inputJson,
+        this.state.files
+      );
+    }
   };
 
   render() {
@@ -91,9 +100,9 @@ class Send extends Component {
                 <Form.Label column>
                   Tilføj filer
                   <Form.Control
-                    id="file"
+                    id="files"
                     type="file"
-                    onChange={this.onChange}
+                    onChange={this.onFileChange}
                     multiple
                   />
                 </Form.Label>

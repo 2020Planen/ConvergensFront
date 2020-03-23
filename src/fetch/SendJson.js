@@ -6,17 +6,22 @@ function handleHttpErrors(res) {
 }
 
 class SendJson {
-  /*
-  upload = (url, data, file) => {
+  uploadFiles = (url, data, files) => {
+    console.log(data)
     var formData = new FormData();
 
-    formData.append("data", data);
-    formData.append("uploadedFile", file);
+    formData.append(
+      "data",
+      new Blob([data], { type: "application/json; charset=utf8" })
+    );
+
+    for (var i = 0; i < files.length; i++) {
+      formData.append("uploadedFile", files[i]);
+    }
 
     fetch(url, {
       method: "POST",
       headers: {
-        "Content-type": "application/json",
         Accept: "application/json"
       },
       body: formData
@@ -25,16 +30,15 @@ class SendJson {
       .catch(error => console.error("Error:", error))
       .then(response => console.log("Success:", JSON.stringify(response)));
   };
-  */
- SendWithTokenIdRev = (gateUrl, url, opt, data) => {
-  const options = this.makeTokenOptions(opt, data, url);
-  return fetch(gateUrl, options)
-    .then(handleHttpErrors)
-    .then(res => {
-      return res;
-    });
-};
 
+  SendWithTokenIdRev = (gateUrl, url, opt, data) => {
+    const options = this.makeTokenOptions(opt, data, url);
+    return fetch(gateUrl, options)
+      .then(handleHttpErrors)
+      .then(res => {
+        return res;
+      });
+  };
 
   SendWithToken = (url, opt, data) => {
     const options = this.makeTokenOptions(opt, data, url);
@@ -44,13 +48,13 @@ class SendJson {
         return res;
       });
   };
-  
+
   makeTokenOptions(method, body, url) {
     var opts = {
       method: method,
       headers: {
         "Content-type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("keycloak-token"),
+        Authorization: "Bearer " + localStorage.getItem("keycloak-token"),
         "target-base-uri": url,
         Accept: "application/json"
       }
@@ -71,7 +75,6 @@ class SendJson {
         return res;
       });
   };
-
 
   makeOptions(method, body) {
     var opts = {
