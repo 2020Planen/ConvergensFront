@@ -11,15 +11,14 @@ import {
 import SendJson from "../fetch/SendJson";
 
 var example = `{"data": {"test1": "tesæt","test2": "testø","test3": "testå"},"metaData": {"name": "Elvira Powell","address": "Nørrebrogade 155","zip": 2200}}`;
-//const url = process.env.REACT_APP_REST_URL + "/receiver/";
-const url = "http://10.1.80.194:31005/receiver/";
+const url = process.env.REACT_APP_RECEIVER_URL;
 class Send extends Component {
   constructor(props) {
     super(props);
     this.state = {
       inputJson: example,
       inputURL: url,
-      inputProducer: "testParam",
+      inputProducer: "address",
       amount: "1",
       files: []
     };
@@ -36,26 +35,28 @@ class Send extends Component {
     this.setState({ files: files });
   };
 
-  sendJson = async evt => {
-    SendJson.uploadFiles(
-      this.state.inputURL + "message/" + this.state.inputProducer,
+  sendJson = async() => {
+    const response = await SendJson.uploadFiles(
+      this.state.inputURL + "/message/" + this.state.inputProducer,
       this.state.inputJson,
       this.state.files
     );
+    alert(JSON.stringify(response));
   };
-  multiSendJson = async evt => {
+  multiSendJson = async() => {
     var jsonArray = [];
     for (var i = 0; i < parseInt(this.state.amount); i++) {
       jsonArray.push(JSON.parse(this.state.inputJson));
     }
-    //const body = JSON.stringify(jsonArray)
-    for (var i = 0; i < this.state.amount; i++) {
-      SendJson.uploadFiles(
-        this.state.inputURL + "message/" + this.state.inputProducer,
-        this.state.inputJson,
-        this.state.files
-      );
-    }
+    const body = JSON.stringify(jsonArray);
+    //for (var i = 0; i < parseInt(this.state.amount); i++) {
+    const response = await SendJson.uploadFiles(
+      this.state.inputURL + "/bulk/" + this.state.inputProducer,
+      body,
+      this.state.files
+    );
+    alert(JSON.stringify(response));
+    //  }
   };
 
   render() {
@@ -81,7 +82,7 @@ class Send extends Component {
                   <Form.Label>Producer</Form.Label>
                   <Form.Control
                     id="inputProducer"
-                    defaultValue="testParam"
+                    defaultValue={this.state.inputProducer}
                     onChange={this.onChange}
                   />
                 </Form.Group>

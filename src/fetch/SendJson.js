@@ -7,7 +7,6 @@ function handleHttpErrors(res) {
 
 class SendJson {
   uploadFiles = (url, data, files) => {
-    console.log(data)
     var formData = new FormData();
 
     formData.append(
@@ -15,20 +14,24 @@ class SendJson {
       new Blob([data], { type: "application/json; charset=utf8" })
     );
 
-    for (var i = 0; i < files.length; i++) {
-      formData.append("uploadedFile", files[i]);
+    if (files.length > 0) {
+      for (var i = 0; i < files.length; i++) {
+        formData.append("uploadedFile", files[i]);
+      }
+    } else {
+      formData.append("uploadedFile", null);
     }
-
-    fetch(url, {
+    return fetch(url, {
       method: "POST",
       headers: {
         Accept: "application/json"
       },
       body: formData
     })
-      .then(response => response.json())
-      .catch(error => console.error("Error:", error))
-      .then(response => console.log("Success:", JSON.stringify(response)));
+      .then(handleHttpErrors)
+      .then(res => {
+        return res;
+      });
   };
 
   SendWithTokenIdRev = (gateUrl, url, opt, data) => {
