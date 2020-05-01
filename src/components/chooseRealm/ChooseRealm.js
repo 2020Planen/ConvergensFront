@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Redirect } from "react-router-dom";
+import logo from "../../pictures/Logo.png"
 import "./ChooseRealm.css";
 
 function Welcome() {
@@ -9,8 +10,9 @@ function Welcome() {
   return (
     <div className="outer">
       <div className="main">
+        <img className="image" src={logo} alt="convergens logo" ></img>
         <p className="sign" align="center">
-          Vælg realm
+          Praktik App
         </p>
 
         <select

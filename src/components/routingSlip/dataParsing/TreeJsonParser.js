@@ -51,6 +51,7 @@ class TreeJsonParser {
   treeToRoutingSlip = (count, input) => {
     if (Array.isArray(input)) {
       for (var index = input.length - 1; index >= 0; index--) {
+        count ++;
         if (typeof input[index] == "object") {
           this.treeToRoutingSlip(count, input[index]);
         }
@@ -71,8 +72,9 @@ class TreeJsonParser {
           delete input[jndex];
         }
         if (jndex === "conditions") {
+          console.log(count)
           input.priority = count;
-          count++;
+          //count++;
         }
         if (jndex === "children") {
           input.routes = input[jndex];

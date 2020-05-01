@@ -10,7 +10,7 @@ import {
   Form,
   Button,
   FormControl,
-  NavDropdown
+  NavDropdown,
 } from "react-bootstrap";
 
 import SendJson from "../../fetch/SendJson";
@@ -33,14 +33,14 @@ class EditRoutingSlip extends Component {
       routingSlip: {
         id: "",
         rev: "",
-        producerReference: ""
+        producerReference: "",
       },
 
       alert: {
         heading: "",
         text: "",
         style: "danger",
-        show: true
+        show: true,
       },
 
       showPopup: false,
@@ -54,7 +54,7 @@ class EditRoutingSlip extends Component {
       searchFocusIndex: 0,
       searchFoundCount: null,
 
-      treeData: []
+      treeData: [],
     };
 
     this.updateTreeData = this.updateTreeData.bind(this);
@@ -79,13 +79,17 @@ class EditRoutingSlip extends Component {
       "/change/" +
       this.state.routingSlip.id +
       "/" +
-      this.state.routingSlip.rev;
+      this.state.routingSlip.rev+
+      "/realm";
+
+
     const gateUrl =
       process.env.REACT_APP_GATEWAY_URL +
       "/" +
       this.state.routingSlip.id +
       "/" +
       this.state.routingSlip.rev;
+      
     let response = await SendJson.SendWithTokenIdRev(
       gateUrl,
       dbUrl,
@@ -96,8 +100,8 @@ class EditRoutingSlip extends Component {
     this.setState({
       routingSlip: {
         ...this.state.routingSlip,
-        rev: response.rev
-      }
+        rev: response.rev,
+      },
     });
     alert(JSON.stringify(response));
   };
@@ -123,8 +127,8 @@ class EditRoutingSlip extends Component {
       routingSlip: {
         id: "",
         rev: "",
-        producerReference: ""
-      }
+        producerReference: "",
+      },
     });
   };
 
@@ -138,8 +142,8 @@ class EditRoutingSlip extends Component {
     this.setState({
       treeData: toggleExpandedForAll({
         treeData: this.state.treeData,
-        expanded
-      })
+        expanded,
+      }),
     });
   }
 
@@ -155,7 +159,7 @@ class EditRoutingSlip extends Component {
   handleShowRemove = ({ parentKey }) => {
     this.setState({
       showRemoveNodeModal: true,
-      nodeToDeleteParentKey: parentKey
+      nodeToDeleteParentKey: parentKey,
     });
   };
   handleClose = () => this.setState({ showAddNodeModal: false });
@@ -163,15 +167,15 @@ class EditRoutingSlip extends Component {
     this.setState({
       newNode: {
         ...this.state.newNode,
-        parentKey: parentKey
-      }
+        parentKey: parentKey,
+      },
     });
     this.setState({ showAddNodeModal: true });
   };
 
   handleShowSearch = () => {
     this.setState({
-      showSearchRoutingSlips: !this.state.showSearchRoutingSlips
+      showSearchRoutingSlips: !this.state.showSearchRoutingSlips,
     });
   };
 
@@ -181,21 +185,21 @@ class EditRoutingSlip extends Component {
         this.state.treeData,
         this.state.nodeToDeleteParentKey,
         getNodeKey
-      )
+      ),
     });
     this.setState({ nodeToDeleteParentKey: null, showRemoveNodeModal: false });
   };
 
-  createNewNode = newNode => {
+  createNewNode = (newNode) => {
     this.setState({
       treeData: this.addNodeUnderParent({
         treeData: this.state.treeData,
         parentKey: newNode.parentKey,
         expandParent: true,
         getNodeKey,
-        newNode: newNode
+        newNode: newNode,
       }).treeData,
-      showAddNodeModal: false
+      showAddNodeModal: false,
     });
   };
 
@@ -203,25 +207,25 @@ class EditRoutingSlip extends Component {
     this.setState({
       searchString: node.subtitle,
       nodeInfo: node,
-      showPopup: true
+      showPopup: true,
     });
   };
 
   togglePopup = () => {
     this.setState({
       showPopup: false,
-      searchString: ""
+      searchString: "",
     });
   };
 
-  selectRoutingSlip = routingSlip => {
+  selectRoutingSlip = (routingSlip) => {
     this.setState({
       routingSlip: {
         id: routingSlip.id,
         rev: routingSlip.rev,
-        producerReference: routingSlip.producerReference
+        producerReference: routingSlip.producerReference,
       },
-      treeData: routingSlip.treeData
+      treeData: routingSlip.treeData,
     });
   };
 
@@ -230,7 +234,7 @@ class EditRoutingSlip extends Component {
       treeData,
       searchString,
       searchFocusIndex,
-      searchFoundCount
+      searchFoundCount,
     } = this.state;
 
     const selectPrevMatch = () =>
@@ -238,7 +242,7 @@ class EditRoutingSlip extends Component {
         searchFocusIndex:
           searchFocusIndex !== null
             ? (searchFoundCount + searchFocusIndex - 1) % searchFoundCount
-            : searchFoundCount - 1
+            : searchFoundCount - 1,
       });
 
     const selectNextMatch = () =>
@@ -246,7 +250,7 @@ class EditRoutingSlip extends Component {
         searchFocusIndex:
           searchFocusIndex !== null
             ? (searchFocusIndex + 1) % searchFoundCount
-            : 0
+            : 0,
       });
 
     return (
@@ -286,7 +290,7 @@ class EditRoutingSlip extends Component {
                       type="text"
                       placeholder="Søg I Regler"
                       className="mr-sm-2"
-                      onChange={event =>
+                      onChange={(event) =>
                         this.setState({ searchString: event.target.value })
                       }
                     />
@@ -348,7 +352,7 @@ class EditRoutingSlip extends Component {
             display: "flex",
             flexDirection: "column",
             height: "88vh",
-            backgroundColor: "#ededed"
+            backgroundColor: "#ededed",
           }}
         >
           <div style={{ flex: "1 0 50%", padding: "0 0 0 15px" }}>
@@ -371,19 +375,19 @@ class EditRoutingSlip extends Component {
               searchQuery={searchString}
               searchFocusOffset={searchFocusIndex}
               //onlyExpandSearchedNodes="true"
-              rowHeight={rowInfo => (rowInfo.node.topic === "??" ? 60 : 60)}
-              searchFinishCallback={matches =>
+              rowHeight={(rowInfo) => (rowInfo.node.topic === "??" ? 60 : 60)}
+              searchFinishCallback={(matches) =>
                 this.setState({
                   searchFoundCount: matches.length,
                   searchFocusIndex:
-                    matches.length > 0 ? searchFocusIndex % matches.length : 0
+                    matches.length > 0 ? searchFocusIndex % matches.length : 0,
                 })
               }
               canDrag={({ node }) => !node.dragDisabled}
               canDrop={({ nextParent }) =>
                 !nextParent || nextParent.isDirectory
               }
-              generateNodeProps={rowInfo => ({
+              generateNodeProps={(rowInfo) => ({
                 icons: rowInfo.node.isDirectory
                   ? [
                       <div
@@ -397,9 +401,9 @@ class EditRoutingSlip extends Component {
                           filter: rowInfo.node.expanded
                             ? "drop-shadow(1px 0 0 gray) drop-shadow(0 1px 0 gray) drop-shadow(0 -1px 0 gray) drop-shadow(-1px 0 0 gray)"
                             : "none",
-                          borderColor: rowInfo.node.expanded ? "white" : "gray"
+                          borderColor: rowInfo.node.expanded ? "white" : "gray",
                         }}
-                      />
+                      />,
                     ]
                   : [
                       <div
@@ -409,11 +413,11 @@ class EditRoutingSlip extends Component {
                           textAlign: "center",
                           marginRight: 10,
                           width: 12,
-                          height: 16
+                          height: 16,
                         }}
                       >
                         F
-                      </div>
+                      </div>,
                     ],
 
                 buttons: [
@@ -424,7 +428,7 @@ class EditRoutingSlip extends Component {
                       margin: 2,
                       width: 20,
                       height: 20,
-                      border: 10
+                      border: 10,
                     }}
                     onClick={() => this.showConditions(rowInfo)}
                   >
@@ -438,7 +442,7 @@ class EditRoutingSlip extends Component {
                       margin: 2,
                       width: 20,
                       height: 20,
-                      border: 10
+                      border: 10,
                     }}
                     onClick={() => {
                       this.handleShowRemove({ parentKey: rowInfo.path });
@@ -454,17 +458,17 @@ class EditRoutingSlip extends Component {
                       margin: 2,
                       width: 20,
                       height: 20,
-                      border: 10
+                      border: 10,
                     }}
                     onClick={() =>
                       this.handleShow({
-                        parentKey: rowInfo.path[rowInfo.path.length - 1]
+                        parentKey: rowInfo.path[rowInfo.path.length - 1],
                       })
                     }
                   >
                     +
-                  </Button>
-                ]
+                  </Button>,
+                ],
               })}
             />
             {this.state.treeData.length === 0 ? (
@@ -491,7 +495,7 @@ class EditRoutingSlip extends Component {
                     variant="success"
                     onClick={() =>
                       this.handleShow({
-                        parentKey: null
+                        parentKey: null,
                       })
                     }
                   >

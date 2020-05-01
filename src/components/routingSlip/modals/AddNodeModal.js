@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Form, Button, Modal, Col, InputGroup } from "react-bootstrap";
 
-
 class AddNodeModal extends Component {
   constructor(props) {
     super(props);
@@ -13,13 +12,26 @@ class AddNodeModal extends Component {
         title: "",
         topic: "",
         children: [],
+        config: {},
         parentKey: this.props.parentKey,
-        isDirectory: true
-      }
+        isDirectory: true,
+      },
     };
   }
 
-  onNodeConditionsChange = evt => {
+  handleNodeConfigChange = (evt) => {
+    var newConfig = this.state.newNode.config;
+    newConfig[evt.target.id] = evt.target.value;
+
+    this.setState({
+      newNode: {
+        ...this.state.newNode,
+        config: newConfig,
+      },
+    });
+  };
+
+  onNodeConditionsChange = (evt) => {
     var value = evt.target.value;
     const index = evt.target.id.split("_")[1];
 
@@ -27,32 +39,32 @@ class AddNodeModal extends Component {
     copy[index][evt.target.id.split("_")[0]] = value;
 
     this.setState({
-      newNodeconditions: copy
+      newNodeconditions: copy,
     });
   };
 
-  onNodeChange = evt => {
+  onNodeChange = (evt) => {
     this.setState({
       newNode: {
         ...this.state.newNode,
-        [evt.target.id]: evt.target.value
-      }
+        [evt.target.id]: evt.target.value,
+      },
     });
   };
 
   handleAddNodeCondition = () => {
     this.setState({
       newNodeconditions: this.state.newNodeconditions.concat([
-        { field: "", action: "", value: "" }
-      ])
+        { field: "", action: "", value: "" },
+      ]),
     });
   };
 
-  handleRemoveNodeCondition = idx => () => {
+  handleRemoveNodeCondition = (idx) => () => {
     this.setState({
       newNodeconditions: this.state.newNodeconditions.filter(
         (s, sidx) => idx !== sidx
-      )
+      ),
     });
   };
 
@@ -64,25 +76,27 @@ class AddNodeModal extends Component {
       ...this.state.newNode,
       title: title,
       subtitle: subtitle,
-      conditions: this.state.newNodeconditions
+      conditions: this.state.newNodeconditions,
     };
 
-    this.props.createNewNode(newNode)
+    this.props.createNewNode(newNode);
 
     this.setState({
       newNodeconditions: [{ field: "", action: "", value: "" }],
+      newNodeConfig: {},
       newNode: {
         title: "",
         topic: "",
         parentKey: 0,
         children: [],
-        isDirectory: true
-      }
+        config: {},
+        isDirectory: true,
+      },
     });
   };
 
   componentDidMount() {
-    console.log("hej")
+    //console.log("hej");
   }
 
   render() {
@@ -104,12 +118,19 @@ class AddNodeModal extends Component {
                 <Form.Group as={Col}>
                   <Form.Label>Field</Form.Label>
                   <Form.Control
+                    as="select"
                     id={"field_" + idx}
                     required
                     placeholder={`field #${idx}`}
                     value={condition.field}
                     onChange={this.onNodeConditionsChange}
-                  />
+                  >
+                    <option hidden> Vælg Field... </option>
+                    <option> MetaData.getAddress </option>
+                    <option> MetaData.getCpr </option>
+                    <option> MetaData.isDigitalPostMember </option>
+                    <option> MetaData.isDigitalPostSent </option>
+                  </Form.Control>
                 </Form.Group>
 
                 <Form.Group as={Col}>
@@ -121,7 +142,7 @@ class AddNodeModal extends Component {
                     required
                     onChange={this.onNodeConditionsChange}
                   >
-                    <option hidden> ... </option>
+                    <option hidden> Vælg Action... </option>
                     <option> lig med </option>
                     <option> større end </option>
                     <option> mindre end </option>
@@ -165,14 +186,57 @@ class AddNodeModal extends Component {
             <Form.Row>
               <Form.Group as={Col}>
                 <Form.Label>Topic</Form.Label>
+
                 <Form.Control
-                  id="topic"
+                  as="select"
+                  id={"topic"}
                   required
-                  placeholder="topic"
                   onChange={this.onNodeChange}
-                />
+                >
+                  <option hidden> Vælg Topic... </option>
+                  <option> address-enricher </option>
+                  <option> cvr-enricher </option>
+                  <option> email-sender </option>
+                  <option> digitalpost-sender </option>
+                </Form.Control>
               </Form.Group>
             </Form.Row>
+
+            {this.state.newNode.topic === "email-sender" ? (
+              <Form.Row>
+                <Form.Group as={Col}>
+                  <Form.Label>Modtager Email</Form.Label>
+                  <Form.Control
+                    id="toMail"
+                    required
+                    placeholder="Modtager email"
+                    onChange={this.handleNodeConfigChange}
+                  />
+                </Form.Group>
+
+                <Form.Group as={Col}>
+                  <Form.Label>Titel</Form.Label>
+                  <Form.Control
+                    id="title"
+                    required
+                    placeholder="Email Titel"
+                    onChange={this.handleNodeConfigChange}
+                  />
+                </Form.Group>
+
+                <Form.Group as={Col}>
+                  <Form.Label>Value</Form.Label>
+                  <InputGroup>
+                    <Form.Control
+                      id="body"
+                      required
+                      placeholder="Email tekst"
+                      onChange={this.handleNodeConfigChange}
+                    />
+                  </InputGroup>
+                </Form.Group>
+              </Form.Row>
+            ) : null}
           </Modal.Body>
           <Modal.Footer>
             <Button

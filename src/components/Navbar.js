@@ -8,6 +8,7 @@ function Header({ keycloak }) {
     email: "",
     email_verified: false
   });
+
   useEffect(() => {
     keycloak.loadUserInfo().then(userInfo => {
       setInfo({
@@ -16,7 +17,7 @@ function Header({ keycloak }) {
         email_verified: userInfo.email_verified
       });
     });
-  });
+  }, [keycloak]);
 
   return (
     <>

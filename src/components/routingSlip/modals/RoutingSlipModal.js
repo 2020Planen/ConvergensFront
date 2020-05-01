@@ -17,6 +17,7 @@ class RoutingSlipModal extends Component {
 
   componentDidMount = async () => {
     //const  routingSlipUrl = URL + "_design/RoutingSlip/_view/by_pr_get_docs"
+    
     const  routingSlipUrl = process.env.REACT_APP_COUCH_TARGET + "/getAllRoutes/realm";
     let routingSlipList = await SendJson.SendWithToken(routingSlipUrl, "GET");
     this.setState({ routingSlipList: routingSlipList.rows});

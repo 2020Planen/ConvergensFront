@@ -82,7 +82,8 @@ class CreateRoutingSlip extends Component {
     this.mapTree = TreeUtils.map.bind(this);
   }
 
-  generateRoutingSlip = async () => {
+  generateRoutingSlip = async (e) => {
+    e.preventDefault();
     var oldJson = {};
     oldJson = JSON.parse(JSON.stringify(this.state.treeData)); //dårlig clone løsning
     var newJson = TreeJsonParser.treeToRoutingSlip(0, oldJson);
