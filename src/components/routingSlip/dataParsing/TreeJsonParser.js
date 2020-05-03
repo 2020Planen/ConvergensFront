@@ -72,7 +72,6 @@ class TreeJsonParser {
           delete input[jndex];
         }
         if (jndex === "conditions") {
-          console.log(count)
           input.priority = count;
           //count++;
         }

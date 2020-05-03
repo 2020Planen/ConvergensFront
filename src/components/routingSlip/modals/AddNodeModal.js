@@ -126,10 +126,14 @@ class AddNodeModal extends Component {
                     onChange={this.onNodeConditionsChange}
                   >
                     <option hidden> Vælg Field... </option>
-                    <option> MetaData.getAddress </option>
+                    <option> MetaData.getName </option>
+                    <option> MetaData.getEmail </option>
                     <option> MetaData.getCpr </option>
-                    <option> MetaData.isDigitalPostMember </option>
-                    <option> MetaData.isDigitalPostSent </option>
+                    <option> MetaData.getCvr </option>
+                    <option> MetaData.getAddress </option>
+                    <option> MetaData.getCity </option>
+                    <option> MetaData.getZip </option>
+                    <option> MetaData.getPhone </option>
                   </Form.Control>
                 </Form.Group>
 

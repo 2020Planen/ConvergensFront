@@ -79,9 +79,8 @@ class EditRoutingSlip extends Component {
       "/change/" +
       this.state.routingSlip.id +
       "/" +
-      this.state.routingSlip.rev+
+      this.state.routingSlip.rev +
       "/realm";
-
 
     const gateUrl =
       process.env.REACT_APP_GATEWAY_URL +
@@ -89,21 +88,26 @@ class EditRoutingSlip extends Component {
       this.state.routingSlip.id +
       "/" +
       this.state.routingSlip.rev;
-      
-    let response = await SendJson.SendWithTokenIdRev(
-      gateUrl,
-      dbUrl,
-      "PUT",
-      routingSlipString
-    );
 
-    this.setState({
-      routingSlip: {
-        ...this.state.routingSlip,
-        rev: response.rev,
-      },
-    });
-    alert(JSON.stringify(response));
+    try {
+      let response = await SendJson.SendWithTokenIdRev(
+        gateUrl,
+        dbUrl,
+        "PUT",
+        routingSlipString
+      );
+
+      this.setState({
+        routingSlip: {
+          ...this.state.routingSlip,
+          rev: response.rev,
+        },
+      });
+      alert(JSON.stringify(response));
+    } catch (error) {
+      this.setState({ routingSlip: {} });
+      alert(error);
+    }
   };
 
   deletRoutingSlip = async () => {
@@ -119,17 +123,26 @@ class EditRoutingSlip extends Component {
       this.state.routingSlip.id +
       "/" +
       this.state.routingSlip.rev;
-    let response = await SendJson.SendWithTokenIdRev(gateUrl, dbUrl, "DELETE");
-    alert(JSON.stringify(response));
 
-    this.setState({
-      treeData: [],
-      routingSlip: {
-        id: "",
-        rev: "",
-        producerReference: "",
-      },
-    });
+    try {
+      let response = await SendJson.SendWithTokenIdRev(
+        gateUrl,
+        dbUrl,
+        "DELETE"
+      );
+      alert(JSON.stringify(response));
+
+      this.setState({
+        treeData: [],
+        routingSlip: {
+          id: "",
+          rev: "",
+          producerReference: "",
+        },
+      });
+    } catch (error) {
+      alert(error);
+    }
   };
 
   findRoutingSlip = async () => {};

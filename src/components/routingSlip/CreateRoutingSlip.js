@@ -39,7 +39,7 @@ class CreateRoutingSlip extends Component {
           title: "cvr-beriger",
           subtitle: "data.cvr - lig med - convergens",
           conditions: [
-            { field: "data.cvr", action: "lig med", value: "convergens" }
+            { field: "data.cvr", action: "lig med", value: "convergens" },
           ],
           topic: "cvr-beriger",
           isDirectory: true,
@@ -48,7 +48,7 @@ class CreateRoutingSlip extends Component {
               title: "kommune-beriger",
               subtitle: "data.address.zip - lig med - 4400",
               conditions: [
-                { field: "data.address.zip", action: "lig med", value: "4400" }
+                { field: "data.address.zip", action: "lig med", value: "4400" },
               ],
               topic: "kommune-beriger",
               isDirectory: true,
@@ -60,18 +60,18 @@ class CreateRoutingSlip extends Component {
                     {
                       field: "data.filstørrelse",
                       action: "større end",
-                      value: "2000"
-                    }
+                      value: "2000",
+                    },
                   ],
                   topic: "test-beriger",
                   children: [],
-                  isDirectory: true
-                }
-              ]
-            }
-          ]
-        }
-      ]
+                  isDirectory: true,
+                },
+              ],
+            },
+          ],
+        },
+      ],
     };
 
     this.updateTreeData = this.updateTreeData.bind(this);
@@ -92,11 +92,18 @@ class CreateRoutingSlip extends Component {
       this.state.producerReference
     }", "routingSlip": {"routes": ${JSON.stringify(newJson)}}}`;
 
-
     const url = process.env.REACT_APP_COUCH_TARGET + "/add/realm";
-    let response = await SendJson.SendWithToken(url, "POST", routingSlipString);
-    alert(JSON.stringify(response));
 
+    try {
+      let response = await SendJson.SendWithToken(
+        url,
+        "POST",
+        routingSlipString
+      );
+      alert(JSON.stringify(response));
+    } catch (error) {
+      alert(error.toString());
+    }
   };
 
   updateTreeData(treeData) {
@@ -107,8 +114,8 @@ class CreateRoutingSlip extends Component {
     this.setState({
       treeData: toggleExpandedForAll({
         treeData: this.state.treeData,
-        expanded
-      })
+        expanded,
+      }),
     });
   }
 
@@ -124,7 +131,7 @@ class CreateRoutingSlip extends Component {
   handleShowRemove = ({ parentKey }) => {
     this.setState({
       showRemoveNodeModal: true,
-      nodeToDeleteParentKey: parentKey
+      nodeToDeleteParentKey: parentKey,
     });
   };
 
@@ -134,7 +141,7 @@ class CreateRoutingSlip extends Component {
         this.state.treeData,
         this.state.nodeToDeleteParentKey,
         getNodeKey
-      )
+      ),
     });
     this.setState({ nodeToDeleteParentKey: null, showRemoveNodeModal: false });
   };
@@ -144,22 +151,22 @@ class CreateRoutingSlip extends Component {
     this.setState({
       newNode: {
         ...this.state.newNode,
-        parentKey: parentKey
-      }
+        parentKey: parentKey,
+      },
     });
     this.setState({ showAddNodeModal: true });
   };
 
-  createNewNode = newNode => {
+  createNewNode = (newNode) => {
     this.setState({
       treeData: this.addNodeUnderParent({
         treeData: this.state.treeData,
         parentKey: newNode.parentKey,
         expandParent: true,
         getNodeKey,
-        newNode: newNode
+        newNode: newNode,
       }).treeData,
-      showAddNodeModal: false
+      showAddNodeModal: false,
     });
   };
 
@@ -167,14 +174,14 @@ class CreateRoutingSlip extends Component {
     this.setState({
       searchString: node.subtitle,
       nodeInfo: node,
-      showPopup: true
+      showPopup: true,
     });
   };
 
   togglePopup = () => {
     this.setState({
       showPopup: false,
-      searchString: ""
+      searchString: "",
     });
   };
 
@@ -183,7 +190,7 @@ class CreateRoutingSlip extends Component {
       treeData,
       searchString,
       searchFocusIndex,
-      searchFoundCount
+      searchFoundCount,
     } = this.state;
 
     const selectPrevMatch = () =>
@@ -191,7 +198,7 @@ class CreateRoutingSlip extends Component {
         searchFocusIndex:
           searchFocusIndex !== null
             ? (searchFoundCount + searchFocusIndex - 1) % searchFoundCount
-            : searchFoundCount - 1
+            : searchFoundCount - 1,
       });
 
     const selectNextMatch = () =>
@@ -199,7 +206,7 @@ class CreateRoutingSlip extends Component {
         searchFocusIndex:
           searchFocusIndex !== null
             ? (searchFocusIndex + 1) % searchFoundCount
-            : 0
+            : 0,
       });
 
     return (
@@ -220,7 +227,7 @@ class CreateRoutingSlip extends Component {
                   type="text"
                   placeholder="Søg I Regler"
                   className="mr-sm-2"
-                  onChange={event =>
+                  onChange={(event) =>
                     this.setState({ searchString: event.target.value })
                   }
                 />
@@ -251,7 +258,7 @@ class CreateRoutingSlip extends Component {
                 id="producerReference"
                 required
                 placeholder="producer reference navn"
-                onChange={event => {
+                onChange={(event) => {
                   this.setState({ producerReference: event.target.value });
                 }}
               />
@@ -286,7 +293,7 @@ class CreateRoutingSlip extends Component {
             display: "flex",
             flexDirection: "column",
             height: "100vh",
-            backgroundColor: "#ededed"
+            backgroundColor: "#ededed",
           }}
         >
           <div style={{ flex: "1 0 50%", padding: "0 0 0 15px" }}>
@@ -303,19 +310,19 @@ class CreateRoutingSlip extends Component {
               searchQuery={searchString}
               searchFocusOffset={searchFocusIndex}
               //onlyExpandSearchedNodes="true"
-              rowHeight={rowInfo => (rowInfo.node.topic === "??" ? 60 : 60)}
-              searchFinishCallback={matches =>
+              rowHeight={(rowInfo) => (rowInfo.node.topic === "??" ? 60 : 60)}
+              searchFinishCallback={(matches) =>
                 this.setState({
                   searchFoundCount: matches.length,
                   searchFocusIndex:
-                    matches.length > 0 ? searchFocusIndex % matches.length : 0
+                    matches.length > 0 ? searchFocusIndex % matches.length : 0,
                 })
               }
               canDrag={({ node }) => !node.dragDisabled}
               canDrop={({ nextParent }) =>
                 !nextParent || nextParent.isDirectory
               }
-              generateNodeProps={rowInfo => ({
+              generateNodeProps={(rowInfo) => ({
                 icons: rowInfo.node.isDirectory
                   ? [
                       <div
@@ -329,9 +336,9 @@ class CreateRoutingSlip extends Component {
                           filter: rowInfo.node.expanded
                             ? "drop-shadow(1px 0 0 gray) drop-shadow(0 1px 0 gray) drop-shadow(0 -1px 0 gray) drop-shadow(-1px 0 0 gray)"
                             : "none",
-                          borderColor: rowInfo.node.expanded ? "white" : "gray"
+                          borderColor: rowInfo.node.expanded ? "white" : "gray",
                         }}
-                      />
+                      />,
                     ]
                   : [
                       <div
@@ -341,11 +348,11 @@ class CreateRoutingSlip extends Component {
                           textAlign: "center",
                           marginRight: 10,
                           width: 12,
-                          height: 16
+                          height: 16,
                         }}
                       >
                         F
-                      </div>
+                      </div>,
                     ],
 
                 buttons: [
@@ -356,7 +363,7 @@ class CreateRoutingSlip extends Component {
                       margin: 2,
                       width: 20,
                       height: 20,
-                      border: 10
+                      border: 10,
                     }}
                     onClick={() => this.showConditions(rowInfo)}
                   >
@@ -370,7 +377,7 @@ class CreateRoutingSlip extends Component {
                       margin: 2,
                       width: 20,
                       height: 20,
-                      border: 10
+                      border: 10,
                     }}
                     onClick={() => {
                       this.handleShowRemove({ parentKey: rowInfo.path });
@@ -386,17 +393,17 @@ class CreateRoutingSlip extends Component {
                       margin: 2,
                       width: 20,
                       height: 20,
-                      border: 10
+                      border: 10,
                     }}
                     onClick={() =>
                       this.handleShow({
-                        parentKey: rowInfo.path[rowInfo.path.length - 1]
+                        parentKey: rowInfo.path[rowInfo.path.length - 1],
                       })
                     }
                   >
                     +
-                  </Button>
-                ]
+                  </Button>,
+                ],
               })}
             />
             {this.state.treeData.length === 0 ? (
@@ -406,7 +413,7 @@ class CreateRoutingSlip extends Component {
                   variant="success"
                   onClick={() =>
                     this.handleShow({
-                      parentKey: null
+                      parentKey: null,
                     })
                   }
                 >

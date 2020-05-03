@@ -5,6 +5,7 @@ function handleHttpErrors(res) {
   return res.json();
 }
 
+
 class SendJson {
   uploadFiles = (url, data, files) => {
     var formData = new FormData();
@@ -24,12 +25,12 @@ class SendJson {
     return fetch(url, {
       method: "POST",
       headers: {
-        Accept: "application/json"
+        Accept: "application/json",
       },
-      body: formData
+      body: formData,
     })
       .then(handleHttpErrors)
-      .then(res => {
+      .then((res) => {
         return res;
       });
   };
@@ -38,7 +39,7 @@ class SendJson {
     const options = this.makeTokenOptions(opt, data, url);
     return fetch(gateUrl, options)
       .then(handleHttpErrors)
-      .then(res => {
+      .then((res) => {
         return res;
       });
   };
@@ -46,9 +47,20 @@ class SendJson {
   SendWithToken = (url, opt, data) => {
     const options = this.makeTokenOptions(opt, data, url);
     return fetch(process.env.REACT_APP_GATEWAY_URL, options)
-      .then(handleHttpErrors)
-      .then(res => {
-        return res;
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        return json;
+      })
+      .catch(async (error) => {
+        const msg = await error.text().then((errorMessage) => {
+          return errorMessage;
+        });
+        throw msg;
       });
   };
 
@@ -59,8 +71,8 @@ class SendJson {
         "Content-type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("keycloak-token"),
         "target-base-uri": url,
-        Accept: "application/json"
-      }
+        Accept: "application/json",
+      },
     };
     if (body) {
       //opts.body = JSON.stringify(body);
@@ -74,7 +86,7 @@ class SendJson {
     const options = this.makeOptions(opt, data);
     return fetch(url, options)
       .then(handleHttpErrors)
-      .then(res => {
+      .then((res) => {
         return res;
       });
   };
@@ -84,8 +96,8 @@ class SendJson {
       method: method,
       headers: {
         "Content-type": "application/json",
-        Accept: "application/json"
-      }
+        Accept: "application/json",
+      },
     };
     if (body) {
       //opts.body = JSON.stringify(body);
