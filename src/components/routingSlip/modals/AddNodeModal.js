@@ -213,7 +213,7 @@ class AddNodeModal extends Component {
                 <Form.Group as={Col}>
                   <Form.Label>Modtager Email</Form.Label>
                   <Form.Control
-                    id="toMail"
+                    id="recipientMail"
                     required
                     placeholder="Modtager email"
                     onChange={this.handleNodeConfigChange}
