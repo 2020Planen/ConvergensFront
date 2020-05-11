@@ -45,6 +45,9 @@
   overflow: auto;
 }
 
+.popup .config {
+  border-top: 0.1px solid rgb(167, 167, 167);
+}
 
 .popup_alert {
   z-index: 1;

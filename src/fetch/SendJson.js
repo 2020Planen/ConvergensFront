@@ -5,7 +5,6 @@ function handleHttpErrors(res) {
   return res.json();
 }
 
-
 class SendJson {
   uploadFiles = (url, data, files) => {
     var formData = new FormData();
@@ -29,10 +28,26 @@ class SendJson {
       },
       body: formData,
     })
+      .then((response) => {
+        if (!response.ok) {
+          throw response;
+        }
+        return response.json();
+      })
+      .then((json) => {
+        return json;
+      })
+      .catch(async (error) => {
+        const msg = await error.text().then((errorMessage) => {
+          return errorMessage;
+        });
+        throw msg;
+      });
+    /*
       .then(handleHttpErrors)
       .then((res) => {
         return res;
-      });
+      });*/
   };
 
   SendWithTokenIdRev = (gateUrl, url, opt, data) => {

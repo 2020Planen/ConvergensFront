@@ -134,6 +134,7 @@ class AddNodeModal extends Component {
                     <option> MetaData.getCity </option>
                     <option> MetaData.getZip </option>
                     <option> MetaData.getPhone </option>
+                    <option> MetaData.getRegisteredAtDigitalPost </option>
                   </Form.Control>
                 </Form.Group>
 
@@ -202,6 +203,7 @@ class AddNodeModal extends Component {
                   <option> cvr-enricher </option>
                   <option> email-sender </option>
                   <option> digitalpost-sender </option>
+                  <option> dp-check </option>
                 </Form.Control>
               </Form.Group>
             </Form.Row>
@@ -221,7 +223,7 @@ class AddNodeModal extends Component {
                 <Form.Group as={Col}>
                   <Form.Label>Titel</Form.Label>
                   <Form.Control
-                    id="title"
+                    id="subject"
                     required
                     placeholder="Email Titel"
                     onChange={this.handleNodeConfigChange}

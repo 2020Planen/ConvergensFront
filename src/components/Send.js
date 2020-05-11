@@ -11,7 +11,7 @@ import {
 import SendJson from "../fetch/SendJson";
 import Alert from "./messageAlert/MessageAlert";
 
-var example = `{"data": {"test1": "tesæt","test2": "testø","test3": "testå"},"metaData": {"name": "Elvira Powell","address": "Nørrebrogade 155","zip": 2200}}`;
+var example = `{"data": {"test1": "tesæt","test2": "testø","test3": "testå"},"metaData": {"name": "Elvira Powell","address": "Nørrebrogade 155","zip": 2200, "cvr":"2222", "cpr":"0104909995"}}`;
 const url = process.env.REACT_APP_RECEIVER_URL;
 class Send extends Component {
   constructor(props) {
@@ -25,7 +25,7 @@ class Send extends Component {
       },
       inputJson: example,
       inputURL: url,
-      inputProducer: "address",
+      inputProducer: "routingtest/odense",
       amount: "1",
       files: [],
     };
@@ -59,9 +59,17 @@ class Send extends Component {
         this.state.inputJson,
         this.state.files
       );
-      alert(JSON.stringify(response));
+      console.log(response);
+      this.setState({
+        messageAlert: {
+          showMessageAlert: true,
+          type: "info",
+          title: "Besked sendt!",
+          body: JSON.stringify(response),
+        },
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       this.setState({
         messageAlert: {
           showMessageAlert: true,
