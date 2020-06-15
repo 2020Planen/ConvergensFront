@@ -102,6 +102,7 @@ class CreateRoutingSlip extends Component {
       );
       alert(JSON.stringify(response));
     } catch (error) {
+      console.log(routingSlipString)
       alert(error.toString());
     }
   };

@@ -10,7 +10,7 @@ function optionsDanishToEnglish(value) {
       value = "less than";
       break;
     default:
-      value = "";
+      value = "error in optionsDanishToEnglish frontend";
   }
   return value;
 }
@@ -27,7 +27,7 @@ function optionsEnglishToDanish(value) {
       value = "mindre end";
       break;
     default:
-      value = "";
+      value = "error in optionsEnglishToDanish frontend";
   }
   return value;
 }
@@ -48,12 +48,12 @@ function toDeleteRoutingSlipToTree(index) {
 }
 
 class TreeJsonParser {
-  treeToRoutingSlip = (count, input) => {
+  treeToRoutingSlip = (priorityCount, input) => {
     if (Array.isArray(input)) {
       for (var index = input.length - 1; index >= 0; index--) {
-        count ++;
+        priorityCount++;
         if (typeof input[index] == "object") {
-          this.treeToRoutingSlip(count, input[index]);
+          this.treeToRoutingSlip(priorityCount, input[index]);
         }
         if (toDeleteTreeToRoutingSlip(index)) {
           input.splice(index, 1);
@@ -62,7 +62,7 @@ class TreeJsonParser {
     } else {
       for (var jndex in input) {
         if (typeof input[jndex] == "object") {
-          this.treeToRoutingSlip(count, input[jndex]);
+          this.treeToRoutingSlip(priorityCount, input[jndex]);
         }
         if (toDeleteTreeToRoutingSlip(jndex)) {
           delete input[jndex];
@@ -72,8 +72,8 @@ class TreeJsonParser {
           delete input[jndex];
         }
         if (jndex === "conditions") {
-          input.priority = count;
-          //count++;
+          input.priority = priorityCount;
+          //priorityCount++;
         }
         if (jndex === "children") {
           input.routes = input[jndex];
@@ -87,7 +87,7 @@ class TreeJsonParser {
     return input;
   };
 
-  routingSlipToTree = input => {
+  routingSlipToTree = (input) => {
     if (Array.isArray(input)) {
       for (var index = input.length - 1; index >= 0; index--) {
         if (typeof input[index] == "object") {

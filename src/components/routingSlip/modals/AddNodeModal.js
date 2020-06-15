@@ -110,7 +110,7 @@ class AddNodeModal extends Component {
           autoFocus={true}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Tilføj Ny Regel</Modal.Title>
+            <Modal.Title>Tilføj Ny Rute</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {this.state.newNodeconditions.map((condition, idx) => (
@@ -160,7 +160,7 @@ class AddNodeModal extends Component {
                     <Form.Control
                       id={"value_" + idx}
                       required
-                      placeholder={`value #${idx}`}
+                      placeholder="Vælg value..."
                       value={condition.value}
                       onChange={this.onNodeConditionsChange}
                     />
