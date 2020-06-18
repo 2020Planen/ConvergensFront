@@ -8,11 +8,11 @@ import {
   InputGroup,
   Button,
   Tab,
-  Tabs
+  Tabs,
 } from "react-bootstrap";
 import SendJson from "../../fetch/SendJson";
 
-const url =process.env.REACT_APP_COUCH_URL + "failed/_design/by_producerReference/_view/view";
+//const url =process.env.REACT_APP_COUCH_URL + "failed/_design/by_producerReference/_view/view";
 
 class RecieverForm extends Component {
   constructor(props) {
@@ -20,20 +20,25 @@ class RecieverForm extends Component {
     this.state = { producerReference: "", responseData: [] };
   }
 
+  componentDidMount() {
+    this.getJson();
+  }
+
+  /*
   getRoutingSlipUrl = producerReference => {
     if (producerReference !== "") {
       return url + "?key=%22" + producerReference + "%22";
     } else return url;
   };
+*/
 
-  getJson = async evt => {
-    //const dbUrl = this.getRoutingSlipUrl(this.state.producerReference);
-    const dbUrl = process.env.REACT_APP_COUCH_TARGET + "/getFailed/realm"
+  getJson = async (evt) => {
+    const dbUrl = process.env.REACT_APP_COUCH_TARGET + "/getFailed/realm";
     let response = await SendJson.SendWithToken(dbUrl, "GET");
     this.setState({ responseData: response.rows });
   };
 
-  onChange = evt => {
+  onChange = (evt) => {
     this.setState({ [evt.target.id]: evt.target.value });
   };
 
@@ -42,7 +47,7 @@ class RecieverForm extends Component {
       <Jumbotron>
         <h5>Besked id: {obj.id}</h5>
         <Tabs defaultActiveKey="data" id="uncontrolled-tab">
-          {Object.keys(obj.value).map(key => (
+          {Object.keys(obj.value).map((key) => (
             <Tab key={key + obj} eventKey={key} title={key}>
               <div>
                 <pre>{JSON.stringify(obj.value[key], null, 2)}</pre>
@@ -61,7 +66,7 @@ class RecieverForm extends Component {
 
   header = () => {
     if (this.state.responseData.length > 0) {
-      return <h3> Antal beskeder: {this.state.responseData.length} </h3>;
+      return <h3> Antal fejlbeskeder: {this.state.responseData.length} </h3>;
     } else {
       return <h3>Modtag fejlbeskeder her:</h3>;
     }
@@ -76,8 +81,8 @@ class RecieverForm extends Component {
           <br />
           <Form.Group>
             <Form.Label>
-              Lyt efter en specifik producer reference, eller lad feltet stå
-              tomt for at lytte på alt
+              Søg efter en specifik producer reference, eller lad feltet stå
+              tomt for at søge efter alle
             </Form.Label>
             <InputGroup>
               <Form.Control
@@ -95,7 +100,7 @@ class RecieverForm extends Component {
           </Form.Group>
         </Jumbotron>
 
-        {Object.keys(this.state.responseData).map(obj => (
+        {Object.keys(this.state.responseData).map((obj) => (
           <this.CreateTab key={obj} obj={this.state.responseData[obj]} />
         ))}
       </>

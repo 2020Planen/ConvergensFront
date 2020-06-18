@@ -316,7 +316,7 @@ class EditRoutingSlip extends Component {
                       &lt;
                     </button>
                     <button
-                      type="submit"
+                      type="button"
                       disabled={!searchFoundCount}
                       onClick={selectNextMatch}
                     >

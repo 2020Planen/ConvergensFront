@@ -12,7 +12,7 @@ function Welcome() {
       <div className="main">
         <img className="image" src={logo} alt="convergens logo" ></img>
         <p className="sign" align="center">
-          Praktik App
+          Hovedopgaven
         </p>
 
         <select

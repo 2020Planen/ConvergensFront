@@ -25,7 +25,7 @@ class Send extends Component {
       },
       inputJson: example,
       inputURL: url,
-      inputProducer: "routingtest/odense",
+      inputProducer: "demo/odense",
       amount: "1",
       files: [],
     };

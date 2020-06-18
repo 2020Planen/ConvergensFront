@@ -202,7 +202,7 @@ class AddNodeModal extends Component {
                   <option> address-enricher </option>
                   <option> cvr-enricher </option>
                   <option> email-sender </option>
-                  <option> digitalpost-sender </option>
+                  <option> digitalPostAfsendelse </option>
                   <option> dp-check </option>
                 </Form.Control>
               </Form.Group>
